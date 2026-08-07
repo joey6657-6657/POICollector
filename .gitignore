@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# IDE / 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# PyInstaller 产物
+*.spec
+!POICollector.spec
+
+# 编译出的 exe（太大，不应入库；GitHub 有 100MB 单文件限制）
+POICollector.exe
+
+# 运行时生成
+output/
+checkpoints/
+config/recent_projects.yaml
+config/user_config.yaml
+
+# 测试临时文件
+测试/
+tests/test_*
+*_test_*
+*_detect_*
+*_parse_*
+*_find_*
+*_e2e_*
+*_create_*
+
+# Windows
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 日志
+*.log
+
+# 图标生成中间产物
+assets/ico_frames/

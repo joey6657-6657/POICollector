@@ -1,0 +1,9 @@
+# 高德 POI 数据采集工具 - 依赖清单
+# 安装：venv\Scripts\python.exe -m pip install -r requirements.txt
+PyQt6>=6.6
+requests>=2.31
+pandas>=2.0
+PyYAML>=6.0
+openpyxl>=3.1
+pyinstaller>=6.0   # 仅打包 exe 时需要
+Pillow>=9.0        # 仅生成/更新 assets/logo.ico 时需要
