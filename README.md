@@ -15,10 +15,16 @@
   <a href="https://www.riverbankcomputing.com/software/pyqt/"><img src="https://img.shields.io/badge/PyQt6-Desktop-blue.svg" alt="PyQt6"></a>
 </p>
 
+<p align="center">
+  <a href="#-中文"><img src="https://img.shields.io/badge/-🇨🇳_中文-red?style=for-the-badge" alt="中文"></a>
+  <a href="#-english"><img src="https://img.shields.io/badge/-🇬🇧_English-blue?style=for-the-badge" alt="English"></a>
+</p>
+
 ---
 
+<a id="-中文"></a>
 <details open>
-<summary><b>🇨🇳 中文</b></summary>
+<summary><b>🇨🇳 中文 （点击收起）</b></summary>
 
 ## ✨ 功能特性
 
@@ -138,8 +144,11 @@ Copyright (c) 2026 joey6657-6657
 
 </details>
 
+---
+
+<a id="-english"></a>
 <details>
-<summary><b>🇬🇧 English</b></summary>
+<summary><b>🇬🇧 English （Click to expand）</b></summary>
 
 ## Features
 
