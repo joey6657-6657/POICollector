@@ -1,0 +1,26 @@
+# 默认配置模板（user_config.yaml 由界面“保存配置”自动生成，请勿手填 Key）
+# 说明：API Key 仅保存在本机配置文件，不进入代码仓库、不上传云端。
+api_key: ""            # 在此填入高德 Web 服务 Key；多 Key 用英文逗号分隔
+mode: around           # around | text | polygon | detail
+around:
+  lng: ""
+  lat: ""
+  radius: 5000
+  keywords: ""
+  city: ""
+  citylimit: false
+  sortrule: distance
+text:
+  keywords: ""
+  city: ""
+  citylimit: false
+polygon:
+  vertices: ""
+detail:
+  id: ""
+types: []              # 选中的 POI 大类编码，如 ["050000","130000"]
+extensions: base      # base | all
+offset: "20"          # 每页条数 10/20/25
+autopage: true        # 自动翻页（上限约 200 条）
+fmt: csv              # csv | excel | geojson | json
+output: ""            # 导出文件完整路径
