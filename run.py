@@ -1,4 +1,4 @@
-"""入口：以脚本方式启动 PyQt6 桌面应用。
+"""入口：以脚本方式启动 PySide6 桌面应用。
 
 用法：
     python run.py
@@ -10,8 +10,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QColor, QPalette
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QColor, QPalette
 from poi_collector.gui.main_window import MainWindow
 
 

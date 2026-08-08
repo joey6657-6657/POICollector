@@ -3,6 +3,6 @@
 架构：
   - core/   业务逻辑：高德 API 客户端、多 Key、重试、分页、断点、坐标转换
   - data/   数据层：导出、去重、POI 类型表
-  - gui/    PyQt6 界面层
+  - gui/    PySide6 界面层
 """
 __version__ = "1.0.0"

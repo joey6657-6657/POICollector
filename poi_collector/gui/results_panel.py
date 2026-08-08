@@ -1,11 +1,11 @@
 """结果预览面板：KPI 统计 + 状态栏 + 数据预览表 + 进度条 + 运行日志 + ArcGIS 操作。"""
 import os
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QTableWidget, QTableWidgetItem,
                              QPlainTextEdit, QHeaderView, QProgressBar,
                              QMenu, QFrame)
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 
 class ResultsPanel(QWidget):

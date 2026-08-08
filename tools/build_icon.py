@@ -1,8 +1,8 @@
 """从 assets/logo.svg 或 assets/logo.png 生成 Windows 多尺寸高清 ICO。
 
 Windows 桌面/任务栏/标题栏会按 DPI 和显示尺寸自动挑选 ICO 里合适的帧。
-本脚本优先读取 assets/logo.svg（真矢量）并用 PyQt6 渲染为高清位图，
- fallback 到 assets/logo.png；最终生成 16/24/32/48/64/128/256 七个尺寸，
+本脚本优先读取 assets/logo.svg（真矢量）并用 PySide6 渲染为高清位图，
+fallback 到 assets/logo.png；最终生成 16/24/32/48/64/128/256 七个尺寸，
 并全部使用 BMP 位图帧（非 PNG 压缩），以最大限度兼容 Windows 资源管理器。
 
 用法（在项目根目录执行）：
@@ -15,11 +15,11 @@ import sys
 
 from PIL import Image
 
-# 需要 PyQt6 来渲染真矢量 SVG；项目 venv 已安装 PyQt6
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap, QPainter
-from PyQt6.QtSvg import QSvgRenderer
+# 需要 PySide6 来渲染真矢量 SVG；项目 venv 已安装 PySide6
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap, QPainter
+from PySide6.QtSvg import QSvgRenderer
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
@@ -36,7 +36,7 @@ RENDER_SIZE = 1024
 
 
 def _render_svg_to_png(svg_path: str, png_path: str, size: int = RENDER_SIZE) -> None:
-    """用 PyQt6 将 SVG 渲染为指定尺寸的透明 PNG。"""
+    """用 PySide6 将 SVG 渲染为指定尺寸的透明 PNG。"""
     app = QApplication(sys.argv)
     pixmap = QPixmap(size, size)
     pixmap.fill(Qt.GlobalColor.transparent)

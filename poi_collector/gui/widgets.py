@@ -11,9 +11,9 @@
 import json
 import os
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QPalette
-from PyQt6.QtWidgets import (QTreeWidget, QTreeWidgetItem, QAbstractItemView)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QPalette
+from PySide6.QtWidgets import (QTreeWidget, QTreeWidgetItem, QAbstractItemView)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _TYPES_PATH = os.path.normpath(os.path.join(_HERE, "..", "data", "poi_types.json"))

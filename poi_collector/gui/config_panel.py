@@ -2,11 +2,11 @@
 import os
 import sys
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
                              QComboBox, QCheckBox, QRadioButton, QPushButton, QSlider,
                              QTabWidget, QPlainTextEdit, QFileDialog, QButtonGroup,
                              QSpinBox)
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from .widgets import PoiTypeList
 
@@ -426,7 +426,7 @@ class ConfigPanel(QWidget):
             lines = [f"{c[0]},{c[1]}" for c in coords]
             self.polygon_edit.setPlainText("\n".join(lines))
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "导入失败", f"无法解析 GeoJSON：{e}")
 
     @staticmethod
