@@ -8,7 +8,7 @@ v1.2：支持"突破 200 条上限"的网格分片采集（SplitCollector）。
 import hashlib
 import os
 
-from PyQt6.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 
 from ..core.amap_client import AMapError
 from ..core.checkpoint import Checkpoint
@@ -17,10 +17,10 @@ from ..data.exporter import Exporter
 
 
 class CollectWorker(QThread):
-    log_signal = pyqtSignal(str)
-    status_signal = pyqtSignal(str, str)      # (文本, 状态: running/done/error)
-    result_signal = pyqtSignal(list)          # 规范化记录列表
-    progress_signal = pyqtSignal(int, int, int)  # (当前数量, 估算总数, 当前页码)
+    log_signal = Signal(str)
+    status_signal = Signal(str, str)      # (文本, 状态: running/done/error)
+    result_signal = Signal(list)          # 规范化记录列表
+    progress_signal = Signal(int, int, int)  # (当前数量, 估算总数, 当前页码)
 
     def __init__(self, client, mode, params, out, fmts,
                  checkpoint_dir: str = None):

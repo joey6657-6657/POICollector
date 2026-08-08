@@ -12,7 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.13+-green.svg" alt="Python"></a>
-  <a href="https://www.riverbankcomputing.com/software/pyqt/"><img src="https://img.shields.io/badge/PyQt6-Desktop-blue.svg" alt="PyQt6"></a>
+  <a href="https://www.riverbankcomputing.com/software/pyqt/"><img src="https://img.shields.io/badge/PySide6-Desktop-blue.svg" alt="PySide6"></a>
 </p>
 
 <p align="center">
@@ -25,6 +25,50 @@
 <a id="-中文"></a>
 <details open>
 <summary><b>🇨🇳 中文 （点击收起）</b></summary>
+
+## 📁 目录结构
+
+```
+POICollector/
+├── run.py                      # 程序入口
+├── POICollector.spec           # PyInstaller 打包配置
+├── requirements.txt            # Python 依赖
+├── LICENSE                     # MIT 许可证
+├── README.md                   # 中英双语文档
+├── assets/                     # 图标资源
+│   ├── logo.svg                #   矢量 logo 源文件
+│   ├── logo.png                #   PNG logo（README 用）
+│   └── logo.ico                #   Windows 多尺寸图标
+├── poi_collector/              # 主包
+│   ├── __init__.py             #   版本号 v1.0.0
+│   ├── core/                   #   核心逻辑
+│   │   ├── amap_client.py      #     高德 API 客户端
+│   │   ├── key_manager.py      #     多 Key 轮询管理
+│   │   ├── paginator.py        #     翻页逻辑
+│   │   ├── splitter.py         #     网格四分片算法
+│   │   ├── coord_transform.py  #     坐标系转换 (GCJ02↔WGS84↔BD09)
+│   │   ├── retry_engine.py     #     指数退避重试
+│   │   ├── checkpoint.py       #     断点续爬
+│   │   ├── recent_projects.py  #     最近工程记录
+│   │   └── arcgis_bridge.py    #     ArcGIS 探测与调用
+│   ├── data/                   #   数据处理与导出
+│   │   ├── deduplicator.py     #     POI 去重
+│   │   ├── exporter.py         #     五格式导出 (CSV/Excel/GeoJSON/JSON/SHP)
+│   │   └── poi_types.json      #     915 项高德 POI 分类
+│   └── gui/                    #   图形界面
+│       ├── main_window.py      #     主窗口 + 关于页
+│       ├── config_panel.py     #     配置面板
+│       ├── results_panel.py    #     结果预览 + KPI + 进度
+│       ├── styles.py           #     统一 QSS 样式
+│       ├── widgets.py          #     自定义控件
+│       └── worker.py           #     后台采集线程
+├── tools/                      # 辅助工具
+│   └── build_icon.py           #   SVG→ICO 图标生成
+└── tests/                      # 单元测试
+    └── test_core.py            #   核心逻辑测试
+```
+
+> `config/`、`output/`、`checkpoints/` 为运行时目录（已 gitignored），不在仓库中显示。
 
 ## ✨ 功能特性
 
@@ -142,6 +186,10 @@ pyinstaller POICollector.spec --noconfirm
 
 Copyright (c) 2026 joey6657-6657
 
+## 🙏 致谢
+
+本项目参考/借鉴了以下开源项目与数据源，详见 [THIRD-PARTY.md](THIRD-PARTY.md)。
+
 </details>
 
 ---
@@ -149,6 +197,50 @@ Copyright (c) 2026 joey6657-6657
 <a id="-english"></a>
 <details>
 <summary><b>🇬🇧 English （Click to expand）</b></summary>
+
+## 📁 Project Structure
+
+```
+POICollector/
+├── run.py                      # Entry point
+├── POICollector.spec           # PyInstaller build config
+├── requirements.txt            # Python dependencies
+├── LICENSE                     # MIT License
+├── README.md                   # Bilingual documentation
+├── assets/                     # Icon assets
+│   ├── logo.svg                #   Vector logo source
+│   ├── logo.png                #   PNG logo (for README)
+│   └── logo.ico                #   Windows multi-size icon
+├── poi_collector/              # Main package
+│   ├── __init__.py             #   Version v1.0.0
+│   ├── core/                   #   Core logic
+│   │   ├── amap_client.py      #     AMap API client
+│   │   ├── key_manager.py      #     Multi-key rotation
+│   │   ├── paginator.py        #     Pagination logic
+│   │   ├── splitter.py         #     Grid splitting algorithm
+│   │   ├── coord_transform.py  #     Coord transform (GCJ02↔WGS84↔BD09)
+│   │   ├── retry_engine.py     #     Exponential backoff retry
+│   │   ├── checkpoint.py       #     Checkpoint resume
+│   │   ├── recent_projects.py  #     Recent project records
+│   │   └── arcgis_bridge.py    #     ArcGIS detection & invocation
+│   ├── data/                   #   Data processing & export
+│   │   ├── deduplicator.py     #     POI deduplication
+│   │   ├── exporter.py         #     Five-format export (CSV/Excel/GeoJSON/JSON/SHP)
+│   │   └── poi_types.json      #     915 AMap POI categories
+│   └── gui/                    #   GUI
+│       ├── main_window.py      #     Main window + About page
+│       ├── config_panel.py     #     Configuration panel
+│       ├── results_panel.py    #     Results preview + KPI + progress
+│       ├── styles.py           #     Unified QSS styles
+│       ├── widgets.py          #     Custom widgets
+│       └── worker.py           #     Background collection thread
+├── tools/                      # Utility tools
+│   └── build_icon.py           #   SVG→ICO icon generator
+└── tests/                      # Unit tests
+    └── test_core.py            #   Core logic tests
+```
+
+> `config/`, `output/`, `checkpoints/` are runtime directories (gitignored) and not shown in the repository.
 
 ## Features
 
@@ -265,5 +357,9 @@ Icon source: `assets/logo.svg` (vector); rendered into multi-size `logo.ico` by 
 Released under the [MIT License](LICENSE).
 
 Copyright (c) 2026 joey6657-6657
+
+## 🙏 Acknowledgements
+
+This project references the following open-source projects and data sources — see [THIRD-PARTY.md](THIRD-PARTY.md) for details.
 
 </details>

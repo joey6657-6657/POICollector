@@ -3,11 +3,11 @@ import os
 import sys
 
 import yaml
-from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QMessageBox, QFileDialog, QSplitter,
                              QScrollArea, QFrame, QSizePolicy, QStackedWidget)
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
-from PyQt6.QtGui import QIcon, QPixmap
+from PySide6.QtCore import Qt, QThread, Signal, QSize
+from PySide6.QtGui import QIcon, QPixmap
 
 from .config_panel import ConfigPanel
 from .results_panel import ResultsPanel
@@ -59,7 +59,7 @@ def _get_logo_path():
 
 class ArcGisWorker(QThread):
     """在后台线程执行 ArcGIS 打开/导入操作，避免阻塞 GUI（无响应）与闪退。"""
-    done_signal = pyqtSignal(bool, str, str)
+    done_signal = Signal(bool, str, str)
 
     def __init__(self, func):
         super().__init__()
