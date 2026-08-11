@@ -9,7 +9,7 @@ a = Analysis(
         ('poi_collector/data/poi_types.json', 'poi_collector/data'),
         ('assets', 'assets'),
     ],
-    hiddenimports=['shapefile', 'yaml'],
+    hiddenimports=['shapefile', 'yaml', 'PySide6.QtSvg'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

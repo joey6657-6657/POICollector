@@ -6,6 +6,9 @@ dist/
 build/
 *.egg
 
+# pip 误生成的垃圾文件（如 `pip install pkg >=6.6` 被解析为重定向）
+=6.*
+
 # 虚拟环境
 venv/
 env/

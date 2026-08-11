@@ -6,13 +6,13 @@
 
 <p align="center">
   <b>基于高德地图 Web 服务 API 的桌面端 POI 采集工具</b><br>
-  <b>AMap POI Collection Desktop Tool — PyQt6 + PyInstaller Single-File EXE</b>
+  <b>AMap POI Collection Desktop Tool — PySide6 + PyInstaller Single-File EXE</b>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.13+-green.svg" alt="Python"></a>
-  <a href="https://www.riverbankcomputing.com/software/pyqt/"><img src="https://img.shields.io/badge/PySide6-Desktop-blue.svg" alt="PySide6"></a>
+  <a href="https://www.qt.io/qt-for-python"><img src="https://img.shields.io/badge/PySide6-Desktop-blue.svg" alt="PySide6"></a>
 </p>
 
 <p align="center">
@@ -81,7 +81,7 @@ POICollector/
 
 ## 📥 下载与安装
 
-从 GitHub Releases 下载 `POICollector.exe`（约 85 MB，单文件、免安装）。
+从 GitHub Releases 下载 `POICollector.exe`（约 75 MB，单文件、免安装）。
 
 - **无需 Python 环境**：双击即用，内置解释器与所有依赖
 - **首次运行提示**：Windows SmartScreen 可能拦截，属正常现象：
@@ -253,7 +253,7 @@ POICollector/
 
 ## Download & Install
 
-Download `POICollector.exe` (~85 MB, single file, no installation) from GitHub Releases.
+Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub Releases.
 
 - **No Python required** — the executable bundles the interpreter and all dependencies
 - **First-run warning**: Windows SmartScreen may block it on first run — this is expected:
