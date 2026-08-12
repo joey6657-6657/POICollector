@@ -5,6 +5,8 @@
 
 v1.2：支持"突破 200 条上限"的网格分片采集（SplitCollector）。
 v1.3：停止采集时保留检查点与部分导出，下次同参数启动自动续采并合并已有数据。
+v1.4：关键词搜索（text）接入网格分片——解析城市行政区边界后切格采集；
+      ID 查询（detail）为单点查询无条数限制，无需分片。
 """
 import csv
 import hashlib
@@ -69,7 +71,9 @@ class CollectWorker(QThread):
             split_threshold = int(self.params.get("split_threshold", 150))
             # 自动模式的判定阈值（高德上限 200，取 180 留余量）
             AUTO_SPLIT_THRESHOLD = 180
-            split_can_run = self.mode in ("around", "polygon")
+            split_can_run = self.mode in ("around", "polygon", "text")
+            if self.mode == "detail" and split_mode != "off":
+                self.log_signal.emit("[分片] ID 查询为单点查询，无 200 条限制，无需分片")
 
             # ---- 分片专用键，不应发给高德 API ----
             def _clean_params():
@@ -107,7 +111,8 @@ class CollectWorker(QThread):
                         f"无需分片，按普通模式采集")
 
             if use_split:
-                # 从业务参数中提取中心/半径/多边形
+                collector = None
+                # 从业务参数中提取中心/半径/多边形/城市
                 if self.mode == "around":
                     loc = self.params.get("location", "")
                     parts = loc.split(",")
@@ -125,7 +130,7 @@ class CollectWorker(QThread):
                         progress_callback=self._on_progress,
                         cancelled=lambda: self._cancelled,
                     )
-                else:  # polygon
+                elif self.mode == "polygon":  # polygon
                     lines = [l.strip() for l in self.params.get("polygon", "").split("|")
                              if l.strip()]
                     if len(lines) < 3:
@@ -146,6 +151,40 @@ class CollectWorker(QThread):
                         progress_callback=self._on_progress,
                         cancelled=lambda: self._cancelled,
                     )
+                else:  # text：按城市行政区边界切格，突破关键词搜索 200 条上限
+                    city = str(self.params.get("city", "")).strip()
+                    if not city:
+                        use_split = False
+                        self.log_signal.emit(
+                            "[分片] 关键词分片需指定城市（未指定时为全国范围，切格代价过大），"
+                            "已退回普通翻页（同参数最多约 200 条）")
+                    else:
+                        try:
+                            polyline = self.client.district_polyline(city)
+                            rings = self._parse_district_polyline(polyline)
+                            if not rings:
+                                raise ValueError("边界坐标解析为空")
+                        except Exception as e:
+                            use_split = False
+                            self.log_signal.emit(
+                                f"[分片] 解析城市「{city}」行政区边界失败，退回普通翻页：{e}")
+                        if use_split:
+                            verts = [pt for ring in rings for pt in ring]
+                            self.log_signal.emit(
+                                f"[分片] 关键词模式：已解析「{city}」边界"
+                                f"（{len(rings)} 环 / {len(verts)} 点），按城市范围切格采集")
+                            collector = SplitCollector(
+                                self.client,
+                                mode="polygon",
+                                polygon=verts,
+                                filter_rings=rings,
+                                threshold=AUTO_SPLIT_THRESHOLD if split_mode == "auto" else split_threshold,
+                                extra_params={k: v for k, v in self.params.items()
+                                              if k not in ("split_mode", "split_threshold")},
+                                progress_callback=self._on_progress,
+                                cancelled=lambda: self._cancelled,
+                            )
+            if use_split:
                 records, total, probe_cnt = collector.run()
                 self.log_signal.emit(
                     f"[分片] 完成：探测 {probe_cnt} 次，合并去重后 {total} 条")
@@ -224,6 +263,27 @@ class CollectWorker(QThread):
 
     def _on_progress(self, current: int, estimate: int, page: int):
         self.progress_signal.emit(current, estimate, page)
+
+    @staticmethod
+    def _parse_district_polyline(polyline: str):
+        """解析高德行政区边界坐标串为环列表。
+
+        格式：多环以 | 分隔，环内点以 ; 分隔，每点为 lng,lat。
+        返回 [[(lng, lat), ...], ...]；点数不足 3 的环丢弃。
+        """
+        rings = []
+        for seg in polyline.split("|"):
+            pts = []
+            for pair in seg.split(";"):
+                xy = pair.split(",")
+                if len(xy) == 2:
+                    try:
+                        pts.append((float(xy[0]), float(xy[1])))
+                    except ValueError:
+                        continue
+            if len(pts) >= 3:
+                rings.append(pts)
+        return rings
 
     @staticmethod
     def _load_prior_records(base: str):

@@ -135,8 +135,9 @@ class ConfigPanel(QWidget):
         split_row.addStretch()
         param_v.addLayout(split_row)
         self.split_mode_group.buttonClicked.connect(self._on_split_mode_changed)
-        param_v.addWidget(self._hint("自动模式：先按非分片跑一次，若接口返回 >= 180 条则自动启用分片，"
-                                      "无需手动开关；手动模式：始终按设定的阈值拆分。"
+        param_v.addWidget(self._hint("自动模式：先探测整体数量，接口返回 >= 180 条则自动启用分片；"
+                                      "手动模式：始终按设定的阈值拆分。适用于周边/多边形/关键词搜索"
+                                      "（关键词分片需指定城市，按城市边界切格；ID 查询为单点查询无需分片）。"
                                       "分片会大幅增加请求次数，请配置多个 Key 分摊 QPS 限流。"))
         root.addWidget(param_card)
 
@@ -523,7 +524,7 @@ class ConfigPanel(QWidget):
         out = self.out_edit.text().strip()
         if not out:
             raise ValueError("请选择保存位置")
-        # 分片采集设置（around/polygon 模式可用；detail 模式忽略）
+        # 分片采集设置（around/polygon/text 模式可用；detail 模式忽略）
         params["split_mode"] = self._split_mode()   # off / auto / manual
         params["split_threshold"] = self.threshold_spin.value()
         return keys, mode, params, out, fmts

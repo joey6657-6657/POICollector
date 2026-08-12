@@ -120,12 +120,15 @@ class SplitCollector:
 
     def __init__(self, client, mode="around", center=None, radius=None,
                  polygon=None, threshold=150, max_depth=5,
-                 extra_params=None, progress_callback=None, cancelled=None):
+                 extra_params=None, progress_callback=None, cancelled=None,
+                 filter_rings=None):
         self.client = client
         self.mode = mode
         self.center = center              # (lng, lat)，around 模式
         self.radius = radius              # 米，around 模式
-        self.polygon = polygon            # [(lng,lat),...]，polygon 模式
+        self.polygon = polygon            # [(lng,lat),...]，polygon 模式（用于包围盒）
+        # 结果过滤环列表：None 时用 polygon 单环；关键词分片传入城市边界多环
+        self.filter_rings = filter_rings
         # 阈值：50~180（留余量，避免恰好 200 时翻页不稳）
         self.threshold = max(50, min(int(threshold or 150), 180))
         self.max_depth = max(1, int(max_depth or 5))
@@ -229,11 +232,13 @@ class SplitCollector:
                 if haversine_m(rlng, rlat, clng, clat) <= self.radius * 1.02:
                     kept.append(r)
         elif self.mode == "polygon" and self.polygon:
+            # 多环边界（如城市行政区）：落在任一环内即保留
+            rings = self.filter_rings if self.filter_rings else [self.polygon]
             for r in self._records:
                 rlng, rlat = r.get("lng"), r.get("lat")
                 if rlng is None or rlat is None:
                     continue
-                if point_in_polygon(rlng, rlat, self.polygon):
+                if any(point_in_polygon(rlng, rlat, ring) for ring in rings):
                     kept.append(r)
         else:
             kept = self._records
