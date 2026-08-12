@@ -32,9 +32,18 @@
 POICollector/
 ├── run.py                      # 程序入口
 ├── POICollector.spec           # PyInstaller 打包配置
-├── requirements.txt            # Python 依赖
+├── requirements.txt            # 运行时 Python 依赖
+├── requirements-dev.txt        # 开发/测试依赖
+├── requirements-lock.txt       # v1.0.0 已验证的完整环境
 ├── LICENSE                     # MIT 许可证
+├── LICENSES/                   # 发行时随附的第三方许可证材料
+├── THIRD-PARTY.md              # 第三方代码/思路参考边界
+├── CONTRIBUTING.md             # 贡献指南
+├── SECURITY.md                 # 安全问题反馈方式
+├── CHANGELOG.md                # 面向用户的更新日志
+├── RELEASE_CHECKLIST.md        # 创建 Release 前的检查清单
 ├── README.md                   # 中英双语文档
+├── .github/                    # CI、CodeQL、Dependabot、Issue 模板
 ├── screenshots/                       # README 配图（申请 Key 流程与示例截图）
 ├── assets/                     # 图标资源
 │   ├── logo.svg                #   矢量 logo 源文件
@@ -65,6 +74,7 @@ POICollector/
 │       └── worker.py           #     后台采集线程
 ├── tools/                      # 辅助工具
 │   └── build_icon.py           #   SVG→ICO 图标生成
+│   └── package_release.ps1     #   生成含 EXE 与许可证的发行 ZIP
 └── tests/                      # 单元测试
     └── test_core.py            #   核心逻辑测试
 ```
@@ -82,7 +92,7 @@ POICollector/
 
 ## 📥 下载与安装
 
-从 GitHub Releases 下载 `POICollector.exe`（约 75 MB，单文件、免安装）。
+首个 GitHub Release 正在准备中；在它创建前，请从源码按“开发”一节运行。创建后会在 GitHub Releases 提供包含 `POICollector.exe` 与许可证材料的 ZIP。
 
 - **无需 Python 环境**：双击即用，内置解释器与所有依赖
 - **首次运行提示**：Windows SmartScreen 可能拦截，属正常现象：
@@ -90,6 +100,10 @@ POICollector/
 > 点击「更多信息」→「仍要运行」
 
 （软件无代码签名证书，故会被拦截；选择信任即可）
+
+## 使用范围与数据处理
+
+本项目仅供**个人学习、科研和内部项目**使用。请勿将其用于批量抓取、长期存储、转售或再分发通过高德服务获得的数据；请自行遵守所使用服务的条款、配额和适用法律法规。
 
 ## 🔑 使用前准备
 
@@ -188,21 +202,28 @@ POICollector/
 python -m venv venv
 venv\Scripts\activate
 
-# 2. 安装依赖
+# 2. 安装运行依赖
 pip install -r requirements.txt
 
-# 3. 运行（开发模式）
+# 3. 如需运行测试，安装开发依赖并执行离线测试
+pip install -r requirements-dev.txt
+python -m pytest -q
+
+# 4. 运行（开发模式）
 python run.py
 
-# 4. 打包为单文件 exe（输出 dist/POICollector.exe）
+# 5. 打包为单文件 exe（输出 dist/POICollector.exe）
 pyinstaller POICollector.spec --noconfirm
+
+# 6. 生成可上传到 GitHub Release 的 ZIP（含许可证与 SHA-256）
+powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ```
 
 图标资源位于 `assets/logo.svg`（真矢量源），由 `tools/build_icon.py` 渲染为多尺寸 `logo.ico`。
 
 ## 📄 许可证
 
-本项目基于 [MIT License](LICENSE) 开源。
+本项目自行编写的代码基于 [MIT License](LICENSE) 开源。第三方代码、仅参考的思路、运行时依赖和随 EXE 发行的许可证材料详见 [THIRD-PARTY.md](THIRD-PARTY.md) 与 [LICENSES/](LICENSES/)。
 
 Copyright (c) 2026 joey6657-6657
 
@@ -224,9 +245,18 @@ Copyright (c) 2026 joey6657-6657
 POICollector/
 ├── run.py                      # Entry point
 ├── POICollector.spec           # PyInstaller build config
-├── requirements.txt            # Python dependencies
+├── requirements.txt            # Runtime Python dependencies
+├── requirements-dev.txt        # Development/test dependencies
+├── requirements-lock.txt       # Verified v1.0.0 environment
 ├── LICENSE                     # MIT License
+├── LICENSES/                   # Third-party license materials for releases
+├── THIRD-PARTY.md              # Attribution and reference boundaries
+├── CONTRIBUTING.md             # Contribution guide
+├── SECURITY.md                 # Security reporting policy
+├── CHANGELOG.md                # User-facing change log
+├── RELEASE_CHECKLIST.md        # Pre-Release checklist
 ├── README.md                   # Bilingual documentation
+├── .github/                    # CI, CodeQL, Dependabot, issue templates
 ├── screenshots/                       # README screenshots (Key setup & examples)
 ├── assets/                     # Icon assets
 │   ├── logo.svg                #   Vector logo source
@@ -257,6 +287,7 @@ POICollector/
 │       └── worker.py           #     Background collection thread
 ├── tools/                      # Utility tools
 │   └── build_icon.py           #   SVG→ICO icon generator
+│   └── package_release.ps1     #   Builds a release ZIP with notices
 └── tests/                      # Unit tests
     └── test_core.py            #   Core logic tests
 ```
@@ -274,7 +305,7 @@ POICollector/
 
 ## Download & Install
 
-Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub Releases.
+The first GitHub Release is being prepared. Until it exists, run the source using the Development section below. Once published, GitHub Releases will provide a ZIP containing `POICollector.exe` and its license materials.
 
 - **No Python required** — the executable bundles the interpreter and all dependencies
 - **First-run warning**: Windows SmartScreen may block it on first run — this is expected:
@@ -282,6 +313,10 @@ Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub R
 > Click **More info** → **Run anyway**
 
 (The app is not code-signed, so the warning is expected — just choose to trust it.)
+
+## Intended Use and Data Handling
+
+This project is for **personal learning, research, and internal projects** only. Do not use it to bulk-harvest, retain long-term, resell, or redistribute data obtained through AMap services. You are responsible for complying with the terms, quotas, and applicable laws for the services you use.
 
 ## Prerequisites
 
@@ -380,21 +415,28 @@ Requires ArcGIS Pro or ArcMap installed locally (not bundled). The tool auto-det
 python -m venv venv
 venv\Scripts\activate
 
-# 2. Install dependencies
+# 2. Install runtime dependencies
 pip install -r requirements.txt
 
-# 3. Run (development mode)
+# 3. To run tests, install development dependencies and execute offline tests
+pip install -r requirements-dev.txt
+python -m pytest -q
+
+# 4. Run (development mode)
 python run.py
 
-# 4. Package as single-file exe (output: dist/POICollector.exe)
+# 5. Package as single-file exe (output: dist/POICollector.exe)
 pyinstaller POICollector.spec --noconfirm
+
+# 6. Create a GitHub Release ZIP with notices and SHA-256
+powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ```
 
 Icon source: `assets/logo.svg` (vector); rendered into multi-size `logo.ico` by `tools/build_icon.py`.
 
 ## License
 
-Released under the [MIT License](LICENSE).
+The code written for this project is released under the [MIT License](LICENSE). For third-party code, idea-only references, runtime dependencies, and license materials included with the EXE, see [THIRD-PARTY.md](THIRD-PARTY.md) and [LICENSES/](LICENSES/).
 
 Copyright (c) 2026 joey6657-6657
 

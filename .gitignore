@@ -4,6 +4,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+release/
 *.egg
 
 # pip 误生成的垃圾文件（如 `pip install pkg >=6.6` 被解析为重定向）
@@ -36,7 +37,8 @@ config/user_config.yaml
 
 # 测试临时文件
 测试/
-tests/test_*
+tests/.pytest_cache/
+tests/__pycache__/
 *_test_*
 *_detect_*
 *_parse_*
@@ -54,3 +56,6 @@ Desktop.ini
 
 # 图标生成中间产物
 assets/ico_frames/
+
+# 本地开源检查过程记录（含本机环境信息，不纳入版本控制）
+/POICollector_开源过程详细记录.md
