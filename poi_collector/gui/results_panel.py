@@ -9,7 +9,7 @@ from PySide6.QtCore import Qt
 
 
 class ResultsPanel(QWidget):
-    COLUMNS = ["名称", "类型", "地址", "经纬度", "距离(m)"]
+    COLUMNS = ["名称", "类型", "行政区", "地址", "经纬度", "距离(m)"]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -243,9 +243,12 @@ class ResultsPanel(QWidget):
             lng = r.get("lng")
             lat = r.get("lat")
             coord = f"{lng},{lat}" if lng is not None else ""
+            # 行政区：优先区/县名，缺失时回退城市名（部分 POI 无 adname）
+            ad = r.get("adname") or r.get("cityname") or ""
             vals = [
                 str(r.get("name") or ""),
                 str(r.get("type") or ""),
+                str(ad),
                 str(r.get("address") or ""),
                 coord,
                 str(r.get("distance") or ""),
