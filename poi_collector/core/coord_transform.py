@@ -1,5 +1,9 @@
 """坐标系转换工具。
 
+本文件中的 GCJ-02 / BD-09 转换实现改编自
+wandergis/coordTransform_py（MIT License，Copyright (c) 2015 WangMing）。
+完整许可证文本见 LICENSES/MIT-wandergis-coordTransform_py.txt。
+
 高德返回的坐标为 GCJ-02（火星坐标系）。本模块提供：
   - GCJ-02  <->  WGS-84（GPS 通用）
   - GCJ-02  <->  BD-09（百度）

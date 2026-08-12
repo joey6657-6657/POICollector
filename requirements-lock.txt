@@ -1,0 +1,35 @@
+# POICollector v1.0.0 - Python 3.13.14 / Windows x64 verified environment
+# Regenerate after an intentional dependency update:
+#   venv\Scripts\python.exe -m pip freeze > requirements-lock.txt
+altgraph==0.17.5
+certifi==2026.7.22
+charset-normalizer==3.4.9
+colorama==0.4.6
+et_xmlfile==2.0.0
+idna==3.18
+iniconfig==2.3.0
+numpy==2.5.1
+openpyxl==3.1.5
+packaging==26.3
+pandas==3.0.5
+pefile==2024.8.26
+pillow==12.3.0
+pluggy==1.6.0
+pygments==2.20.0
+pyinstaller==6.21.0
+pyinstaller-hooks-contrib==2026.6
+pyshp==3.1.6
+PySide6==6.11.1
+PySide6_Addons==6.11.1
+PySide6_Essentials==6.11.1
+python-dateutil==2.9.0.post0
+pywin32-ctypes==0.2.3
+PyYAML==6.0.3
+pytest==9.1.1
+requests==2.34.2
+setuptools==83.0.0
+shiboken6==6.11.1
+six==1.17.0
+tzdata==2026.3
+urllib3==2.7.0
+xlrd==2.0.2
