@@ -48,7 +48,7 @@ class AMapClient:
     # ------------------------------------------------------------------ #
     # 低层单次请求（重试 + Key 轮询）
     # ------------------------------------------------------------------ #
-    def _call(self, endpoint: str, params: dict):
+    def _call(self, endpoint: str, params: dict, base: str = None):
         last_err = None
         for attempt in range(self.retry.max_retries):
             if not self.key_manager:
@@ -58,7 +58,7 @@ class AMapClient:
             params["key"] = self.key_manager.current()
             try:
                 resp = self.session.get(
-                    self.BASE + endpoint, params=params, timeout=self.timeout
+                    (base or self.BASE) + endpoint, params=params, timeout=self.timeout
                 )
                 data = resp.json()
             except (requests.RequestException, ValueError) as e:
@@ -107,6 +107,28 @@ class AMapClient:
             # 业务错误（KEY 无效、参数错误等）不重试
             raise AMapError(f"高德返回错误 [{errcode}] {info}")
         raise last_err or AMapError("请求失败（超过重试上限）")
+
+    # ------------------------------------------------------------------ #
+    # 行政区边界（关键词分片用）
+    # ------------------------------------------------------------------ #
+    DISTRICT_BASE = "https://restapi.amap.com/v3/config"
+
+    def district_polyline(self, keywords: str) -> str:
+        """查询行政区边界 polyline（关键词模式网格分片用）。
+
+        调用 /v3/config/district 接口，返回与 keywords 匹配的首个行政区
+        的边界坐标串（多环以 | 分隔，环内点以 ; 分隔，点为 lng,lat）。
+        """
+        p = {"keywords": keywords, "subdistrict": 0,
+             "extensions": "base", "offset": 1, "page": 1}
+        data = self._call("/district", p, base=self.DISTRICT_BASE)
+        districts = data.get("districts") or []
+        if not districts:
+            raise AMapError(f"行政区接口未找到与 '{keywords}' 匹配的行政区")
+        polyline = districts[0].get("polyline") or ""
+        if not polyline:
+            raise AMapError(f"行政区接口未返回 '{keywords}' 的边界坐标")
+        return polyline
 
     # ------------------------------------------------------------------ #
     # 规范化
