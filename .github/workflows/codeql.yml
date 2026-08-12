@@ -1,0 +1,34 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    # Code scanning is enabled for the intended public repository.  Keep the
+    # private preparation repository green until its visibility is changed.
+    if: github.event.repository.private == false
+    name: Analyze Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
