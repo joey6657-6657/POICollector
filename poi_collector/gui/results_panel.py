@@ -123,7 +123,7 @@ class ResultsPanel(QWidget):
         self.progress_bar.setObjectName("progressBar")
         ph_layout.addWidget(self.progress_bar)
         # 暂停采集按钮（与进度条联动）
-        self.pause_btn = QPushButton("暂停采集")
+        self.pause_btn = QPushButton("停止采集")
         self.pause_btn.setObjectName("toolBtn")
         self.pause_btn.setMinimumHeight(34)
         self.pause_btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -195,7 +195,21 @@ class ResultsPanel(QWidget):
         )
         self._update_kpi(status_text=text)
 
+    # 日志前缀 → 颜色（错误红 / 警告橙 / 分片与续传蓝 / 系统绿）
+    _LOG_COLORS = (
+        ("[错误]", "#dc2626"), ("[异常]", "#dc2626"),
+        ("[警告]", "#d97706"),
+        ("[分片]", "#2563eb"), ("[续传]", "#2563eb"),
+        ("[系统]", "#059669"),
+    )
+
     def add_log(self, line: str):
+        escaped = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        for prefix, color in self._LOG_COLORS:
+            if line.startswith(prefix):
+                self.log.appendHtml(
+                    f'<span style="color:{color};white-space:pre-wrap;">{escaped}</span>')
+                return
         self.log.appendPlainText(line)
 
     def set_arcgis_enabled(self, enabled: bool):
@@ -282,10 +296,10 @@ class ResultsPanel(QWidget):
         self.pause_btn.setVisible(False)
 
     def set_paused(self):
-        """暂停采集后的 UI 状态。"""
+        """用户停止采集后的 UI 状态（检查点已保留，可续采）。"""
         self.pause_btn.setVisible(False)
-        self.progress_label.setText(self.progress_label.text() + "  ·  已暂停")
-        self.set_status("已暂停", "idle")
+        self.progress_label.setText(self.progress_label.text() + "  ·  已停止（可续采）")
+        self.set_status("已停止 · 可续采", "idle")
 
     def set_final_total(self, total: int):
         """设置最终采集条数。"""

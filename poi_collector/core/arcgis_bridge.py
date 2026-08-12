@@ -1,7 +1,7 @@
 """ArcGIS 桥接：检测安装、启动并加载数据、写入指定工程文件。
 
 本模块不依赖 arcpy——它只用标准库检测本机 ArcGIS 安装位置，并通过
-操作系统 / 调用 ArcGIS 自带的 Python 来完成操作。这样我们的 PyQt 工具
+操作系统 / 调用 ArcGIS 自带的 Python 来完成操作。这样我们的 PySide6 工具
 （自带 Python 运行时）无需安装 ArcGIS 即可使用。
 
 按钮 A（启动并加载数据）：用 os.startfile 让 Windows 以默认程序（ArcGIS）打开
@@ -428,6 +428,11 @@ def open_in_arcgis(shapefile_path):
                 return _open_pro_with_data(inst, open_path, pro_base)
             finally:
                 cleanup_fn()
+
+    # 兜底：检测到安装但主程序/自带 Python 均不可用
+    cleanup_fn()
+    return False, ("检测到 ArcGIS，但其主程序或自带 Python 不可用，无法自动加载数据。\n"
+                   "请尝试修复安装，或手动在 ArcGIS 中添加导出的 Shapefile。")
 
 
 def _open_pro_with_data(inst, shapefile_path, pro_base):

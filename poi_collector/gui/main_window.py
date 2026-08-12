@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, Q
                              QPushButton, QMessageBox, QFileDialog, QSplitter,
                              QScrollArea, QFrame, QSizePolicy, QStackedWidget)
 from PySide6.QtCore import Qt, QThread, Signal, QSize
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QPainter, QPixmap
 
 from .config_panel import ConfigPanel
 from .results_panel import ResultsPanel
@@ -118,8 +118,8 @@ class MainWindow(QMainWindow):
         sb.addSpacing(24)
 
         # 导航按钮：首页 + 关于
-        self.nav_home = self._nav_btn("🏠", "首页")
-        self.nav_about = self._nav_btn("ℹ", "关于")
+        self.nav_home = self._nav_btn("home", "首页")
+        self.nav_about = self._nav_btn("about", "关于")
         self._nav_buttons = {
             "home": self.nav_home,
             "about": self.nav_about,
@@ -135,9 +135,9 @@ class MainWindow(QMainWindow):
         line.setFrameShape(QFrame.Shape.HLine)
         sb.addWidget(line)
         sb.addSpacing(8)
-        sb.addWidget(self._nav_btn("💾", "保存配置", self._save_config))
+        sb.addWidget(self._nav_btn("save", "保存配置", self._save_config))
         sb.addSpacing(8)
-        sb.addWidget(self._nav_btn("📂", "加载配置", self._load_config))
+        sb.addWidget(self._nav_btn("folder", "加载配置", self._load_config))
         sb.addSpacing(10)
 
         # 版本号
@@ -290,9 +290,9 @@ class MainWindow(QMainWindow):
         v.addWidget(card)
         return page
 
-    def _nav_btn(self, icon: str, label: str, callback=None):
-        """生成侧边栏图标按钮：图标在上、文字在下、垂直居中。"""
-        btn = QPushButton(f"{icon}\n{label}")
+    def _nav_btn(self, icon_name: str, label: str, callback=None):
+        """生成侧边栏图标按钮：SVG 图标 + 文字，垂直居中。"""
+        btn = QPushButton(self._nav_icon(icon_name), label)
         btn.setObjectName("navBtn")
         btn.setCheckable(callback is None)
         btn.setFixedSize(74, 64)
@@ -301,6 +301,26 @@ class MainWindow(QMainWindow):
         if callback:
             btn.clicked.connect(callback)
         return btn
+
+    def _nav_icon(self, name: str):
+        """从 assets/icons/ 加载导航 SVG 图标；缺失时退化为空图标（仍显示文字）。"""
+        path = _get_resource_path(os.path.join("icons", f"{name}.svg"))
+        if not path:
+            return QIcon()
+        try:
+            from PySide6.QtSvg import QSvgRenderer
+            renderer = QSvgRenderer(path)
+            if not renderer.isValid():
+                return QIcon()
+            size = renderer.defaultSize().scaled(22, 22, Qt.AspectRatioMode.KeepAspectRatio)
+            pix = QPixmap(size)
+            pix.fill(Qt.GlobalColor.transparent)
+            painter = QPainter(pix)
+            renderer.render(painter)
+            painter.end()
+            return QIcon(pix)
+        except Exception:
+            return QIcon()
 
     def _line(self):
         line = QFrame()
@@ -366,7 +386,7 @@ class MainWindow(QMainWindow):
         """用户点击暂停采集：取消当前 worker，并联动恢复左侧按钮为开始采集。"""
         if self.worker and self.worker.isRunning():
             self.worker.cancel()
-            self.results.add_log("[系统] 用户暂停采集，等待当前请求结束后停止…")
+            self.results.add_log("[系统] 用户停止采集，等待当前请求结束后停止…")
             self.results.set_paused()
             self.config.set_collecting(False)
         else:
@@ -506,7 +526,11 @@ class MainWindow(QMainWindow):
 
     def _run_arcgis_task(self, func, log_prefix, fail_title,
                           success_title=None, on_success_extra=None):
-        self._ag_worker = ArcGisWorker(func)
+        if not hasattr(self, "_ag_workers"):
+            self._ag_workers = set()
+        worker = ArcGisWorker(func)
+        self._ag_workers.add(worker)
+
         def _on_done(ok, msg, extra):
             self.results.add_log(f"{log_prefix} {msg}")
             if ok:
@@ -519,8 +543,9 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(self, success_title, msg)
             else:
                 QMessageBox.warning(self, fail_title, msg)
-        self._ag_worker.done_signal.connect(_on_done)
-        self._ag_worker.start()
+        worker.done_signal.connect(_on_done)
+        worker.finished.connect(lambda: self._ag_workers.discard(worker))
+        worker.start()
 
     def _refresh_recent_menu(self):
         self.results.refresh_recent_menu(
