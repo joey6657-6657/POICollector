@@ -118,9 +118,12 @@ class AMapClient:
 
         调用 /v3/config/district 接口，返回与 keywords 匹配的首个行政区
         的边界坐标串（多环以 | 分隔，环内点以 ; 分隔，点为 lng,lat）。
+
+        注意：extensions 必须为 all —— 官方文档：base 不返回行政区边界
+        坐标点，all 才返回当前查询 district 的 polyline。
         """
         p = {"keywords": keywords, "subdistrict": 0,
-             "extensions": "base", "offset": 1, "page": 1}
+             "extensions": "all", "offset": 1, "page": 1}
         data = self._call("/district", p, base=self.DISTRICT_BASE)
         districts = data.get("districts") or []
         if not districts:
