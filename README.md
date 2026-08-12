@@ -35,7 +35,7 @@ POICollector/
 ├── requirements.txt            # Python 依赖
 ├── LICENSE                     # MIT 许可证
 ├── README.md                   # 中英双语文档
-├── 图片/                       # README 配图（申请 Key 流程与示例截图）
+├── screenshots/                       # README 配图（申请 Key 流程与示例截图）
 ├── assets/                     # 图标资源
 │   ├── logo.svg                #   矢量 logo 源文件
 │   ├── logo.png                #   PNG logo（README 用）
@@ -108,12 +108,12 @@ POICollector/
 各步骤界面参考：
 
 <p float="left">
-  <img src="图片/高德开放平台.png" width="460" alt="高德开放平台首页">
-  <img src="图片/高德开放平台注册.png" width="460" alt="注册账号">
+  <img src="screenshots/高德开放平台.png" width="460" alt="高德开放平台首页">
+  <img src="screenshots/高德开放平台注册.png" width="460" alt="注册账号">
 </p>
 <p float="left">
-  <img src="图片/高德开放平台登录.png" width="460" alt="登录控制台">
-  <img src="图片/高德开放平台创建Key.png" width="460" alt="创建 Web 服务 Key">
+  <img src="screenshots/高德开放平台登录.png" width="460" alt="登录控制台">
+  <img src="screenshots/高德开放平台创建Key.png" width="460" alt="创建 Web 服务 Key">
 </p>
 
 > 💡 提示：每人用自己的 Key，不要共用。建议申请 2~3 个 Key 配合"网格分片"使用。
@@ -124,12 +124,12 @@ POICollector/
 
 1. 获取校区坐标：在 [高德坐标拾取器](https://lbs.amap.com/tools/picker) 搜索“苏州科技大学江枫校区”，点击地图即可拾取 GCJ-02 坐标（约 `120.565,31.300`）
 
-<img src="图片/经纬度查询.png" width="600" alt="坐标拾取器示例">
+<img src="screenshots/经纬度查询.png" width="600" alt="坐标拾取器示例">
 
 2. 切换到「周边搜索」Tab → 城市填 `苏州`，经度 `120.565`，纬度 `31.300`，半径 `2000`
 3. 关键词填 `餐饮`（或在 POI 类型勾选“餐饮服务”）→ 选好输出路径 → 点「开始采集」
 
-<img src="图片/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="示例一运行截图">
+<img src="screenshots/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="示例一运行截图">
 
 ### 示例二：采集苏州市地铁站
 
@@ -137,7 +137,7 @@ POICollector/
 2. 「自动网格分片」保持默认自动 → 点「开始采集」
 3. 工具会先探测总数，≥180 条时自动解析苏州行政区边界、逐网格采集并合并去重，突破 200 条上限
 
-<img src="图片/示例二：采集苏州市地铁站.png" width="800" alt="示例二运行截图">
+<img src="screenshots/示例二：采集苏州市地铁站.png" width="800" alt="示例二运行截图">
 
 ## 📋 四种采集模式
 
@@ -227,7 +227,7 @@ POICollector/
 ├── requirements.txt            # Python dependencies
 ├── LICENSE                     # MIT License
 ├── README.md                   # Bilingual documentation
-├── 图片/                       # README screenshots (Key setup & examples)
+├── screenshots/                       # README screenshots (Key setup & examples)
 ├── assets/                     # Icon assets
 │   ├── logo.svg                #   Vector logo source
 │   ├── logo.png                #   PNG logo (for README)
@@ -300,12 +300,12 @@ Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub R
 Screenshots for each step:
 
 <p float="left">
-  <img src="图片/高德开放平台.png" width="460" alt="AMap Open Platform home">
-  <img src="图片/高德开放平台注册.png" width="460" alt="Sign up">
+  <img src="screenshots/高德开放平台.png" width="460" alt="AMap Open Platform home">
+  <img src="screenshots/高德开放平台注册.png" width="460" alt="Sign up">
 </p>
 <p float="left">
-  <img src="图片/高德开放平台登录.png" width="460" alt="Log in to console">
-  <img src="图片/高德开放平台创建Key.png" width="460" alt="Create Web Service key">
+  <img src="screenshots/高德开放平台登录.png" width="460" alt="Log in to console">
+  <img src="screenshots/高德开放平台创建Key.png" width="460" alt="Create Web Service key">
 </p>
 
 > **Tip**: Use your own key; do not share. We recommend 2–3 keys when using grid splitting.
@@ -316,12 +316,12 @@ Screenshots for each step:
 
 1. Get the campus coordinates: search "苏州科技大学江枫校区" on the [AMap Coordinate Picker](https://lbs.amap.com/tools/picker) and click the map to pick GCJ-02 coordinates (about `120.565,31.300`)
 
-<img src="图片/经纬度查询.png" width="600" alt="Coordinate picker example">
+<img src="screenshots/经纬度查询.png" width="600" alt="Coordinate picker example">
 
 2. Switch to **Nearby Search** tab → City: `苏州 (Suzhou)`, Longitude `120.565`, Latitude `31.300`, Radius `2000`
 3. Keyword: `餐饮` (dining) — or check the “餐饮服务” POI category → choose output path → click **Start**
 
-<img src="图片/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="Example 1 screenshot">
+<img src="screenshots/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="Example 1 screenshot">
 
 ### Example 2: All metro stations in Suzhou
 
@@ -329,7 +329,7 @@ Screenshots for each step:
 2. Keep **Auto grid splitting** on automatic (default) → click **Start**
 3. The tool probes the total first; when ≥180 it parses Suzhou's administrative boundary, collects grid by grid and merges results, bypassing the 200-result limit
 
-<img src="图片/示例二：采集苏州市地铁站.png" width="800" alt="Example 2 screenshot">
+<img src="screenshots/示例二：采集苏州市地铁站.png" width="800" alt="Example 2 screenshot">
 
 ## Collection Modes
 
