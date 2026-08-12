@@ -4,8 +4,11 @@
 同时将已采集 ID 写入检查点文件，中断后可续采。
 
 v1.2：支持"突破 200 条上限"的网格分片采集（SplitCollector）。
+v1.3：停止采集时保留检查点与部分导出，下次同参数启动自动续采并合并已有数据。
 """
+import csv
 import hashlib
+import json
 import os
 
 from PySide6.QtCore import QThread, Signal
@@ -47,6 +50,7 @@ class CollectWorker(QThread):
 
     def run(self):
         ckpt_path = self._checkpoint_path()
+        self._ckpt_path = ckpt_path
         ckpt = Checkpoint(ckpt_path) if ckpt_path else None
 
         # 事件回调：将 AMapClient 的限速/重试事件转发到日志
@@ -149,6 +153,7 @@ class CollectWorker(QThread):
                 # ---- 原有单次查询（自动翻页，同参数最多 200 条；支持断点续传）----
                 request_params = _clean_params()
                 resume_page = 1
+                prior = []
                 if ckpt:
                     saved = ckpt.load()
                     if saved.get("collected_ids"):
@@ -156,6 +161,11 @@ class CollectWorker(QThread):
                         self.log_signal.emit(
                             f"[续传] 发现检查点，已采集 {len(saved['collected_ids'])} 条，"
                             f"从第 {resume_page} 页继续")
+                        # 检查点只存了 ID，历史数据需从已导出文件回读，
+                        # 否则本次导出只剩续采部分，会覆盖丢失上一段数据
+                        prior = self._load_prior_records(os.path.splitext(self.out)[0])
+                        if prior:
+                            self.log_signal.emit(f"[续传] 已回读历史数据 {len(prior)} 条，将与新采数据合并")
                 records, total = self.client.search(
                     self.mode, request_params, auto_paginate=True,
                     start_page=resume_page,
@@ -163,12 +173,35 @@ class CollectWorker(QThread):
                     checkpoint=ckpt,
                     cancelled=lambda: self._cancelled,
                 )
+                if prior:
+                    # 与回读的历史数据合并；跨段 ID 去重已由检查点完成
+                    records = prior + records
+                    total = len(records)
                 self.log_signal.emit(f"[采集] 接口返回去重后 {total} 条")
 
             # 多格式导出：以 out 为基名，按各格式补全扩展名
             ext_map = {"csv": ".csv", "excel": ".xlsx", "geojson": ".geojson",
                        "json": ".json", "shapefile": ".shp"}
             base = os.path.splitext(self.out)[0]
+
+            if self._cancelled:
+                # 用户中途停止：导出已采部分并保留检查点，下次同参数启动自动续采
+                if records:
+                    saved = []
+                    for fmt in self.fmts:
+                        path = base + ext_map.get(fmt, "." + str(fmt))
+                        Exporter().export(records, path, fmt)
+                        saved.append(path)
+                    self.log_signal.emit(
+                        f"[导出] 已保存当前进度 {len(records)} 条（{len(saved)} 个文件）")
+                self.result_signal.emit(records)
+                if ckpt:
+                    self.log_signal.emit(
+                        f"[系统] 采集已停止，检查点已保留（{os.path.basename(ckpt_path)}），"
+                        f"下次使用相同参数点「开始采集」可自动续采")
+                self.status_signal.emit(f"已停止（已采 {len(records)} 条，可续采）", "idle")
+                return
+
             saved = []
             for fmt in self.fmts:
                 path = base + ext_map.get(fmt, "." + str(fmt))
@@ -191,3 +224,39 @@ class CollectWorker(QThread):
 
     def _on_progress(self, current: int, estimate: int, page: int):
         self.progress_signal.emit(current, estimate, page)
+
+    @staticmethod
+    def _load_prior_records(base: str):
+        """续采前回读上次已导出的记录，优先 .json（字段全），其次 .csv。
+
+        返回规范化 dict 列表；无可用文件时返回 []。
+        """
+        json_path = base + ".json"
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if isinstance(data, list):
+                    return [r for r in data if isinstance(r, dict)]
+            except (OSError, ValueError):
+                pass
+        csv_path = base + ".csv"
+        if os.path.exists(csv_path):
+            _FLOAT = {"lng", "lat", "lng_wgs84", "lat_wgs84", "distance", "rating", "cost"}
+            try:
+                with open(csv_path, "r", encoding="utf-8-sig", newline="") as f:
+                    rows = []
+                    for row in csv.DictReader(f):
+                        for k, v in row.items():
+                            if v == "":
+                                row[k] = None
+                            elif k in _FLOAT and v is not None:
+                                try:
+                                    row[k] = float(v)
+                                except ValueError:
+                                    row[k] = None
+                        rows.append(row)
+                    return rows
+            except OSError:
+                pass
+        return []
