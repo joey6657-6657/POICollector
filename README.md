@@ -35,6 +35,7 @@ POICollector/
 ├── requirements.txt            # Python 依赖
 ├── LICENSE                     # MIT 许可证
 ├── README.md                   # 中英双语文档
+├── 图片/                       # README 配图（申请 Key 流程与示例截图）
 ├── assets/                     # 图标资源
 │   ├── logo.svg                #   矢量 logo 源文件
 │   ├── logo.png                #   PNG logo（README 用）
@@ -73,7 +74,7 @@ POICollector/
 ## ✨ 功能特性
 
 - **四种采集模式**：周边搜索、关键字搜索、多边形搜索、POI ID 详情查询
-- **网格分片突破上限**：自动切分区域，突破高德同参数约 200 条返回上限
+- **网格分片突破上限**：周边 / 多边形 / 关键词搜索均可自动切分区域，突破高德同参数约 200 条返回上限（关键词分片按城市行政区边界切格）
 - **多 Key 配额感知**：多个 Key 自动轮询分摊 QPS 限流，配额耗尽自动切换
 - **五格式导出**：CSV / Excel / GeoJSON / JSON / Shapefile（均使用 WGS-84 坐标系）
 - **一键导入 ArcGIS**：直接启动 ArcGIS / ArcGIS Pro 加载数据，或写入已有工程文件
@@ -104,27 +105,46 @@ POICollector/
 3. 点击「+ 创建新 Key」，**服务平台务必选「Web 服务」**
 4. 复制生成的 32 位 Key（形如 `82c5...e3b5`）
 
+各步骤界面参考：
+
+<p float="left">
+  <img src="图片/高德开放平台.png" width="460" alt="高德开放平台首页">
+  <img src="图片/高德开放平台注册.png" width="460" alt="注册账号">
+</p>
+<p float="left">
+  <img src="图片/高德开放平台登录.png" width="460" alt="登录控制台">
+  <img src="图片/高德开放平台创建Key.png" width="460" alt="创建 Web 服务 Key">
+</p>
+
 > 💡 提示：每人用自己的 Key，不要共用。建议申请 2~3 个 Key 配合"网格分片"使用。
 
 ## 🚀 快速上手
 
-### 示例一：采集北京三里屯附近餐厅
+### 示例一：采集苏州科技大学江枫校区附近的餐饮
 
-1. 切换到「周边搜索」Tab → 城市填 `北京`
-2. 经度 `116.454`，纬度 `39.936`，半径 `1000`
-3. 关键词填 `餐饮` → 选好输出路径 → 点「开始采集」
+1. 获取校区坐标：在 [高德坐标拾取器](https://lbs.amap.com/tools/picker) 搜索“苏州科技大学江枫校区”，点击地图即可拾取 GCJ-02 坐标（约 `120.565,31.300`）
 
-### 示例二：采集南京市所有加油站
+<img src="图片/经纬度查询.png" width="600" alt="坐标拾取器示例">
 
-1. 切换到「关键字搜索」Tab → 城市填 `南京`
-2. 关键词填 `加油站` → 点「开始采集」
+2. 切换到「周边搜索」Tab → 城市填 `苏州`，经度 `120.565`，纬度 `31.300`，半径 `2000`
+3. 关键词填 `餐饮`（或在 POI 类型勾选“餐饮服务”）→ 选好输出路径 → 点「开始采集」
+
+<img src="图片/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="示例一运行截图">
+
+### 示例二：采集苏州市地铁站
+
+1. 切换到「关键字搜索」Tab → 城市填 `苏州`，关键词填 `地铁站`
+2. 「自动网格分片」保持默认自动 → 点「开始采集」
+3. 工具会先探测总数，≥180 条时自动解析苏州行政区边界、逐网格采集并合并去重，突破 200 条上限
+
+<img src="图片/示例二：采集苏州市地铁站.png" width="800" alt="示例二运行截图">
 
 ## 📋 四种采集模式
 
 | 模式 | 说明 | 必填参数 |
 |---|---|---|
-| 周边搜索 | 以坐标点为中心、指定半径内搜索 | 城市 / 经纬度 / 半径(m) |
-| 关键字搜索 | 指定城市内按关键词搜索 | 城市 / 关键词 |
+| 周边搜索 | 以坐标点为中心、指定半径内搜索 | 经纬度 / 半径(m)，城市可选 |
+| 关键字搜索 | 按关键词搜索（填城市可限定范围） | 关键词；分片时必填城市 |
 | 多边形搜索 | 自定义多边形区域内搜索，支持 AOI 导入 | 多边形顶点（每行一个 `经度,纬度`） |
 | ID 查询 | 根据 POI ID 获取详情 | POI ID |
 
@@ -132,8 +152,8 @@ POICollector/
 
 - **API Key**：支持多个（英文逗号分隔），自动轮询分摊限流
 - **POI 类型**：三级树（大类/中类/小类，915 项），勾大类即含全部子类
-- **每页条数**：1–500（高德单页上限 25，但软件支持设置更大值配合分页）
-- **突破 200 条上限（网格分片）**：自动切分区域逐块采集、合并去重
+- **每页条数**：1–25（高德官方单页上限 25，工具自动翻页，同参数最多约 200 条）
+- **突破 200 条上限（网格分片）**：关闭 / 自动 / 手动三种模式；适用于周边 / 多边形 / 关键词搜索（关键词分片需指定城市），自动切分区域逐块采集、合并去重
 - **导出格式**：可多选，按所选格式分别导出同名文件
 
 ## 📤 导出格式
@@ -207,6 +227,7 @@ POICollector/
 ├── requirements.txt            # Python dependencies
 ├── LICENSE                     # MIT License
 ├── README.md                   # Bilingual documentation
+├── 图片/                       # README screenshots (Key setup & examples)
 ├── assets/                     # Icon assets
 │   ├── logo.svg                #   Vector logo source
 │   ├── logo.png                #   PNG logo (for README)
@@ -245,7 +266,7 @@ POICollector/
 ## Features
 
 - **Four collection modes**: Nearby search, Keyword search, Polygon search, POI ID detail query
-- **Grid splitting**: Auto-splits the area to bypass AMap's ~200-result limit per query
+- **Grid splitting**: Available for nearby / polygon / keyword search — auto-splits the area to bypass AMap's ~200-result limit per query (keyword splitting grids by city administrative boundary)
 - **Multi-key rotation**: Multiple keys rotate automatically to spread QPS throttling; switches when one is exhausted
 - **Five export formats**: CSV / Excel / GeoJSON / JSON / Shapefile (all in WGS-84 coordinate system)
 - **One-click ArcGIS integration**: Launch ArcGIS / ArcGIS Pro to load data, or write into an existing project file
@@ -276,27 +297,46 @@ Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub R
 3. Click **+ Create Key**, set **Service Platform = "Web Service"**
 4. Copy the generated 32-character key (e.g., `82c5...e3b5`)
 
+Screenshots for each step:
+
+<p float="left">
+  <img src="图片/高德开放平台.png" width="460" alt="AMap Open Platform home">
+  <img src="图片/高德开放平台注册.png" width="460" alt="Sign up">
+</p>
+<p float="left">
+  <img src="图片/高德开放平台登录.png" width="460" alt="Log in to console">
+  <img src="图片/高德开放平台创建Key.png" width="460" alt="Create Web Service key">
+</p>
+
 > **Tip**: Use your own key; do not share. We recommend 2–3 keys when using grid splitting.
 
 ## Quick Start
 
-### Example 1: Restaurants near Sanlitun, Beijing
+### Example 1: Restaurants near Jiangfeng Campus, Suzhou University of Science and Technology
 
-1. Switch to **Nearby Search** tab → City: `Beijing`
-2. Longitude `116.454`, Latitude `39.936`, Radius `1000`
-3. Keyword: `Restaurant` → choose output path → click **Start**
+1. Get the campus coordinates: search "苏州科技大学江枫校区" on the [AMap Coordinate Picker](https://lbs.amap.com/tools/picker) and click the map to pick GCJ-02 coordinates (about `120.565,31.300`)
 
-### Example 2: All gas stations in Nanjing
+<img src="图片/经纬度查询.png" width="600" alt="Coordinate picker example">
 
-1. Switch to **Keyword Search** tab → City: `Nanjing`
-2. Keyword: `Gas Station` → click **Start**
+2. Switch to **Nearby Search** tab → City: `苏州 (Suzhou)`, Longitude `120.565`, Latitude `31.300`, Radius `2000`
+3. Keyword: `餐饮` (dining) — or check the “餐饮服务” POI category → choose output path → click **Start**
+
+<img src="图片/示例一：采集苏州科技大学江枫校区附近的餐饮.png" width="800" alt="Example 1 screenshot">
+
+### Example 2: All metro stations in Suzhou
+
+1. Switch to **Keyword Search** tab → City: `苏州 (Suzhou)`, Keyword: `地铁站` (metro station)
+2. Keep **Auto grid splitting** on automatic (default) → click **Start**
+3. The tool probes the total first; when ≥180 it parses Suzhou's administrative boundary, collects grid by grid and merges results, bypassing the 200-result limit
+
+<img src="图片/示例二：采集苏州市地铁站.png" width="800" alt="Example 2 screenshot">
 
 ## Collection Modes
 
 | Mode | Description | Required Fields |
 |---|---|---|
-| Nearby Search | Search within a radius of a coordinate point | City / Longitude-Latitude / Radius (m) |
-| Keyword Search | Search by keyword within a city | City / Keyword |
+| Nearby Search | Search within a radius of a coordinate point | Longitude-Latitude / Radius (m); city optional |
+| Keyword Search | Search by keyword (city narrows the scope) | Keyword; city required when splitting |
 | Polygon Search | Search within a custom polygon area; supports AOI import | Polygon vertices (one `lng,lat` per line) |
 | ID Query | Get details by POI ID | POI ID |
 
@@ -304,8 +344,8 @@ Download `POICollector.exe` (~75 MB, single file, no installation) from GitHub R
 
 - **API Key**: Supports multiple keys (comma-separated), auto-rotates for load balancing
 - **POI Type**: Three-level tree (Category / Subcategory / Type, 915 entries); checking a parent selects all children
-- **Page size**: 1–500 (AMap per-page limit is 25, but higher values work with pagination)
-- **Grid splitting**: Auto-splits and merges results to exceed the 200-result limit
+- **Page size**: 1–25 (official per-page limit is 25; the tool auto-paginates, up to ~200 results per query)
+- **Grid splitting (bypass the 200 limit)**: off / auto / manual; available for nearby / polygon / keyword search (keyword splitting requires a city); auto-splits and merges results
 - **Export formats**: Multi-select; one output file per selected format
 
 ## Export Formats
