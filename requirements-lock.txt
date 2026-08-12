@@ -27,7 +27,7 @@ pywin32-ctypes==0.2.3
 PyYAML==6.0.3
 pytest==9.1.1
 requests==2.34.2
-setuptools==83.0.0
+setuptools==84.0.0
 shiboken6==6.11.1
 six==1.17.0
 tzdata==2026.3
