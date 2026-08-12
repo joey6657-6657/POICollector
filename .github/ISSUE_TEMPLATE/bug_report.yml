@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible problem without exposing API keys or personal data.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include API keys, exact home/work addresses, phone numbers, personal paths, or unredacted logs/screenshots.
+  - type: input
+    id: version
+    attributes:
+      label: POICollector version
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11 x64
+        - Windows 10 x64
+        - Other Windows version
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: List the smallest safe steps that reproduce the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and redacted error message
+    validations:
+      required: true
