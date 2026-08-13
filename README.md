@@ -280,3 +280,4 @@ Copyright (c) 2026 joey6657-6657
 ### 贡献者
 
 - [@joey6657-6657](https://github.com/joey6657-6657) — 项目创建、功能开发与维护
+- 联系邮箱：[2842853418@qq.com](mailto:2842853418@qq.com)
