@@ -233,8 +233,6 @@ pyinstaller POICollector.spec --noconfirm
 powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ```
 
-图标资源位于 `assets/logo.svg`（真矢量源），由 `tools/build_icon.py` 渲染为多尺寸 `logo.ico`。
-
 ## 📄 许可证
 
 本项目自行编写的代码基于 [MIT License](LICENSE) 开源。下方「致谢与第三方说明」区分了改编代码、思路参考、数据来源和运行时依赖；随 EXE 发行时还应一并提供 [LICENSES/](LICENSES/) 中的许可证材料。
@@ -247,7 +245,7 @@ Copyright (c) 2026 joey6657-6657
 
 感谢以下开源项目、数据服务和开发协作工具。本节同时是本项目的第三方声明：它明确区分了改编代码与仅参考的思路，避免把概念借鉴误写成代码复制。
 
-### 已改编的代码（随源码和 EXE 发行时必须保留）
+### 已改编的代码
 
 #### [wandergis/coordTransform_py](https://github.com/wandergis/coordTransform_py)
 
@@ -256,7 +254,7 @@ Copyright (c) 2026 joey6657-6657
 - **许可证**：MIT License；原始版权声明为 Copyright (c) 2015 WangMing。
 - **随附文本**：[LICENSES/MIT-wandergis-coordTransform_py.txt](LICENSES/MIT-wandergis-coordTransform_py.txt)。
 
-### 仅参考的算法或产品思路（未复制或改编其代码）
+### 仅参考的算法或产品思路
 
 #### [zdbpython/GaoDe-poi-crawler](https://github.com/zdbpython/GaoDe-poi-crawler)
 

@@ -233,8 +233,6 @@ pyinstaller POICollector.spec --noconfirm
 powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ~~~
 
-The vector icon source is <code>assets/logo.svg</code>; <code>tools/build_icon.py</code> renders it into the multi-size <code>logo.ico</code>.
-
 ## 📄 License
 
 The code written for this project is released under the [MIT License](LICENSE). The [Acknowledgements and third-party notices](#acknowledgements) below distinguish adapted code, idea-only references, data sources, and runtime dependencies. When distributing the EXE, also include the license materials in [LICENSES/](LICENSES/).
@@ -247,7 +245,7 @@ Copyright (c) 2026 joey6657-6657
 
 Thanks to the following open-source projects, data services, and development collaboration tools. This section is also the project’s third-party notice: it distinguishes adapted code from idea-only references so that a conceptual reference is not misrepresented as copied code.
 
-### Adapted code (must be retained with source and EXE distributions)
+### Adapted code
 
 #### [wandergis/coordTransform_py](https://github.com/wandergis/coordTransform_py)
 
@@ -256,7 +254,7 @@ Thanks to the following open-source projects, data services, and development col
 - **License:** MIT License; original copyright notice: Copyright (c) 2015 WangMing.
 - **Included license text:** [LICENSES/MIT-wandergis-coordTransform_py.txt](LICENSES/MIT-wandergis-coordTransform_py.txt).
 
-### Algorithm or product ideas only (no code copied or adapted)
+### Algorithm or product ideas only
 
 #### [zdbpython/GaoDe-poi-crawler](https://github.com/zdbpython/GaoDe-poi-crawler)
 
