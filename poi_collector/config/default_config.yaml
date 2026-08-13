@@ -1,6 +1,6 @@
-# 默认配置模板（user_config.yaml 由界面“保存配置”自动生成，请勿手填 Key）
-# 说明：API Key 仅保存在本机配置文件，不进入代码仓库、不上传云端。
-api_key: ""            # 在此填入高德 Web 服务 Key；多 Key 用英文逗号分隔
+# 默认配置模板（user_config.yaml 由界面“保存配置”自动生成；API Key 不随配置保存）
+# 说明：程序不会把 API Key 写入 user_config.yaml；每次启动或加载配置后均需在界面重新填写。
+api_key: ""            # 保持为空；请在界面填写高德 Web 服务 Key，多 Key 用英文逗号分隔
 mode: around           # around | text | polygon | detail
 around:
   lng: ""

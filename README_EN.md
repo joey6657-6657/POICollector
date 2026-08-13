@@ -46,7 +46,9 @@
 
 ## 📥 Download and installation
 
+- **Download v1.0.0:** open the [POICollector v1.0.0 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.0) and download `POICollector.exe` from Assets.
 - **No Python environment required:** the published EXE packages the interpreter and dependencies.
+- **SHA-256:** `0E46E721CFF52C3C2A8BA218D620516DD06D935FBBD533B3E36C405D572F1AC5`
 - **First-run notice:** the app is not code-signed, so Windows SmartScreen may show a warning. Download only from this repository’s Release and verify the SHA-256 checksum.
 
 <a id="scope"></a>
