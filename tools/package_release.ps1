@@ -24,7 +24,7 @@ $releaseRoot = Join-Path $repoRoot "release"
 $packageName = "POICollector-v$Version-windows-x64"
 $stage = Join-Path $releaseRoot $packageName
 $zip = Join-Path $releaseRoot "$packageName.zip"
-$releaseNotes = Join-Path $repoRoot "RELEASE_NOTES_v$Version.md"
+$releaseNotes = Join-Path $repoRoot "docs\releases\RELEASE_NOTES_v$Version.md"
 
 if (-not (Test-Path -LiteralPath $releaseNotes -PathType Leaf)) {
     throw "Release notes not found: $releaseNotes"

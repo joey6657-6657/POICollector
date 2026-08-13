@@ -46,16 +46,14 @@
 
 ## 📥 下载与安装
 
-首个 GitHub Release 正在准备中；在它创建前，请从源码按“[开发文档](#development)”一节运行。创建后会在 GitHub Releases 提供包含 `POICollector.exe` 与许可证材料的 ZIP。
-
-- **无需 Python 环境**：发行 EXE 内置解释器与依赖，双击即可使用。
+- **无需 Python 环境**：发布的 EXE 内置解释器与依赖，双击即可使用。
 - **首次运行提示**：软件没有代码签名，Windows SmartScreen 可能提示拦截；请只从本仓库 Release 下载并核对 SHA-256。
 
 <a id="scope"></a>
 
 ## 使用范围与数据处理
 
-本项目仅供**个人学习、科研和内部项目**使用。请勿将其用于批量抓取、长期存储、转售或再分发通过高德服务获得的数据；请自行遵守所使用服务的条款、配额和适用法律法规。
+本项目仅供**个人学习和科研**使用。请勿将其用于批量抓取、长期存储、转售或再分发通过高德服务获得的数据；请自行遵守所使用服务的条款、配额和适用法律法规。
 
 <a id="preparation"></a>
 
@@ -197,22 +195,17 @@ POICollector/
 ├── requirements-dev.txt        # 开发/测试依赖
 ├── requirements-lock.txt       # v1.0.0 已验证的完整环境
 ├── LICENSE / LICENSES/         # 本项目与第三方许可证材料
-├── CONTRIBUTING.md             # 贡献指南
-├── SECURITY.md                 # 安全问题反馈方式
-├── CHANGELOG.md                # 面向用户的更新日志
-├── RELEASE_CHECKLIST.md        # 创建 Release 前的检查清单
-├── .github/                    # CI、CodeQL、Dependabot、Issue 模板
+├── .github/                    # CI、Issue 模板与社区规范
+├── docs/                       # 更新日志与 Release 文档
 ├── screenshots/                # README 配图与操作演示
 ├── assets/                     # 图标资源
 ├── poi_collector/
 │   ├── core/                   # API、分页、分片、断点、ArcGIS 桥接等核心逻辑
 │   ├── data/                   # 去重、导出与 POI 分类数据
 │   └── gui/                    # PySide6 图形界面与后台采集线程
-├── tools/                      # 图标与发行 ZIP 辅助脚本
+├── tools/                      # 图标与可选发行归档脚本
 └── tests/                      # 离线核心逻辑测试
 ```
-
-> `config/`、`output/`、`checkpoints/`、`build/`、`dist/`、`release/` 为本地运行或打包目录，均由 Git 忽略；不在仓库中显示。
 
 <a id="development"></a>
 
@@ -236,7 +229,7 @@ python run.py
 # 5. 打包为单文件 EXE（输出 dist/POICollector.exe）
 pyinstaller POICollector.spec --noconfirm
 
-# 6. 生成可上传到 GitHub Release 的 ZIP（含许可证与 SHA-256）
+# 6. （可选）生成含许可证材料的发行归档包
 powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ```
 
@@ -259,7 +252,7 @@ Copyright (c) 2026 joey6657-6657
 #### [wandergis/coordTransform_py](https://github.com/wandergis/coordTransform_py)
 
 - **使用范围**：<code>poi_collector/core/coord_transform.py</code> 中 GCJ-02、WGS-84、BD-09 的转换公式与实现结构。
-- **性质**：代码改编，不只是思路借鉴。
+
 - **许可证**：MIT License；原始版权声明为 Copyright (c) 2015 WangMing。
 - **随附文本**：[LICENSES/MIT-wandergis-coordTransform_py.txt](LICENSES/MIT-wandergis-coordTransform_py.txt)。
 
@@ -285,3 +278,7 @@ Copyright (c) 2026 joey6657-6657
 ### 开发协作工具
 
 开发过程中曾使用以下模型协助进行需求梳理、文档审阅、测试思路和代码讨论：**ChatGPT 5.6 Terra、Qwen3.8 Max、HY3、GLM 5.2、DeepSeek V4 Flash**。最终代码、文档和发布内容均由项目维护者审阅并决定。
+
+### 贡献者
+
+- [@joey6657-6657](https://github.com/joey6657-6657) — 项目创建、功能开发与维护

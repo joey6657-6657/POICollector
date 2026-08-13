@@ -46,16 +46,14 @@
 
 ## 📥 Download and installation
 
-The first GitHub Release is being prepared. Until then, run from source using the [Development](#development) section. The future GitHub Release will provide a ZIP containing <code>POICollector.exe</code> and the required license materials.
-
-- **No Python environment required:** the release EXE packages the interpreter and dependencies.
+- **No Python environment required:** the published EXE packages the interpreter and dependencies.
 - **First-run notice:** the app is not code-signed, so Windows SmartScreen may show a warning. Download only from this repository’s Release and verify the SHA-256 checksum.
 
 <a id="scope"></a>
 
 ## Intended use and data handling
 
-This project is for **personal learning, research, and internal projects** only. Do not use it to bulk-collect, retain long-term, resell, or redistribute data obtained through AMap services. You are responsible for complying with the terms, quotas, and applicable laws for the services you use.
+This project is for **personal learning and research** only. Do not use it to bulk-collect, retain long-term, resell, or redistribute data obtained through AMap services. You are responsible for complying with the terms, quotas, and applicable laws for the services you use.
 
 <a id="preparation"></a>
 
@@ -197,22 +195,17 @@ POICollector/
 ├── requirements-dev.txt        # Development/test dependencies
 ├── requirements-lock.txt       # Verified v1.0.0 environment
 ├── LICENSE / LICENSES/         # Project and third-party license materials
-├── CONTRIBUTING.md             # Contribution guide
-├── SECURITY.md                 # Security reporting policy
-├── CHANGELOG.md                # User-facing change log
-├── RELEASE_CHECKLIST.md        # Checklist before creating a Release
-├── .github/                    # CI, CodeQL, Dependabot, issue templates
+├── .github/                    # CI, issue templates, and community policies
+├── docs/                       # Change log and Release documentation
 ├── screenshots/                # README images and operating demos
 ├── assets/                     # Icon resources
 ├── poi_collector/
 │   ├── core/                   # API, pagination, splitting, checkpoint, ArcGIS bridge
 │   ├── data/                   # Deduplication, export, and POI category data
 │   └── gui/                    # PySide6 GUI and background collection thread
-├── tools/                      # Icon and release-ZIP helper scripts
+├── tools/                      # Icon and optional release-archive scripts
 └── tests/                      # Offline core-logic tests
 ~~~
-
-> <code>config/</code>, <code>output/</code>, <code>checkpoints/</code>, <code>build/</code>, <code>dist/</code>, and <code>release/</code> are local runtime or packaging directories. They are Git-ignored and do not appear in the repository.
 
 <a id="development"></a>
 
@@ -236,7 +229,7 @@ python run.py
 # 5. Package a single-file EXE (output: dist/POICollector.exe)
 pyinstaller POICollector.spec --noconfirm
 
-# 6. Create a GitHub Release ZIP with licenses and SHA-256
+# 6. Optional: create a release archive with license materials
 powershell -ExecutionPolicy Bypass -File tools\package_release.ps1 -Version 1.0.0
 ~~~
 
@@ -259,7 +252,7 @@ Thanks to the following open-source projects, data services, and development col
 #### [wandergis/coordTransform_py](https://github.com/wandergis/coordTransform_py)
 
 - **Use in this project:** the GCJ-02, WGS-84, and BD-09 conversion formulas and implementation structure in <code>poi_collector/core/coord_transform.py</code>.
-- **Nature:** adapted code, not merely an idea reference.
+
 - **License:** MIT License; original copyright notice: Copyright (c) 2015 WangMing.
 - **Included license text:** [LICENSES/MIT-wandergis-coordTransform_py.txt](LICENSES/MIT-wandergis-coordTransform_py.txt).
 
@@ -285,3 +278,7 @@ Thanks to the following open-source projects, data services, and development col
 ### Development collaboration tools
 
 The following models were used during development for requirements discussion, document review, test ideas, and code discussion: **ChatGPT 5.6 Terra, Qwen3.8 Max, HY3, GLM 5.2, and DeepSeek V4 Flash**. The project maintainer reviewed and made the final decisions on all code, documentation, and release content.
+
+### Contributors
+
+- [@joey6657-6657](https://github.com/joey6657-6657) — project creation, feature development, and maintenance

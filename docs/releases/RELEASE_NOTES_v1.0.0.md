@@ -12,9 +12,9 @@
 ## 使用前请阅读
 
 - 需要自行申请并使用自己的高德 Web 服务 API Key；本项目不提供、收集或保存 Key。
-- 仅供个人学习、科研和内部项目使用；请遵守相关服务条款、接口配额及适用法律法规。
+- 仅供个人学习和科研使用；请遵守相关服务条款、接口配额及适用法律法规。
 - EXE 没有代码签名，首次运行可能被 Windows SmartScreen 提示。请只从本仓库 Release 下载，并自行核对下方 SHA-256。
-- 建议下载包含 `README.md`（含第三方声明）、`README_EN.md`、`LICENSE` 和 `LICENSES/` 的发行 ZIP；其中的 EXE 为 Windows 单文件程序。
+- 从本页下载 `POICollector.exe` 即可运行，无需预先安装 Python；许可证与第三方说明见源代码仓库中的 `README.md`、`LICENSE` 和 `LICENSES/`。
 
 ## 文件校验
 

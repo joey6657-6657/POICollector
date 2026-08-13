@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security issue
-    url: https://github.com/joey6657-6657
-    about: Do not open a public issue for a security problem. Follow SECURITY.md instead.
+    url: https://github.com/joey6657-6657/POICollector/security/policy
+    about: Do not open a public issue for a security problem. Follow the repository security policy instead.
