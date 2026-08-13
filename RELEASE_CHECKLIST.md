@@ -21,7 +21,7 @@
 ## 文档与许可证
 
 - [ ] `README.md` 的版本、下载说明、项目结构与实际一致。
-- [ ] `LICENSE`、`THIRD-PARTY.md` 和 `LICENSES/` 随源码及 EXE 一同提供。
+- [ ] `README.md`（含第三方声明）、`README_EN.md`、`LICENSE` 和 `LICENSES/` 随源码及 EXE 一同提供。
 - [ ] 用 `tools/package_release.ps1` 生成包含 EXE 与许可证材料的发行 ZIP，并核对其中内容。
 - [ ] `CHANGELOG.md` 写明本次面向用户的变更。
 - [ ] `v1.0.0` 标签指向本次已验证的提交。

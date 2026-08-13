@@ -40,7 +40,8 @@ if (Test-Path -LiteralPath $zip) {
 New-Item -ItemType Directory -Path $stage | Out-Null
 Copy-Item -LiteralPath $exe -Destination (Join-Path $stage "POICollector.exe")
 Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination $stage
-Copy-Item -LiteralPath (Join-Path $repoRoot "THIRD-PARTY.md") -Destination $stage
+Copy-Item -LiteralPath (Join-Path $repoRoot "README.md") -Destination $stage
+Copy-Item -LiteralPath (Join-Path $repoRoot "README_EN.md") -Destination $stage
 Copy-Item -LiteralPath $releaseNotes -Destination $stage
 Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSES") -Destination (Join-Path $stage "LICENSES") -Recurse
 
