@@ -121,7 +121,7 @@ class SplitCollector:
     def __init__(self, client, mode="around", center=None, radius=None,
                  polygon=None, threshold=150, max_depth=5,
                  extra_params=None, progress_callback=None, cancelled=None,
-                 filter_rings=None):
+                 filter_rings=None, event_callback=None):
         self.client = client
         self.mode = mode
         self.center = center              # (lng, lat)，around 模式
@@ -135,16 +135,39 @@ class SplitCollector:
         self.extra_params = dict(extra_params or {})
         self.progress_callback = progress_callback  # fn(current, estimate, page)
         self.cancelled = cancelled        # fn()->bool
+        # 事件回调：探测进度 / 过密警告（fn(msg: str)），worker 接到日志面板。
+        # 大区域分片会产生数百次探测请求，期间进度条完全不动，
+        # 必须通过日志让用户知道采集仍在推进（用户反馈"像卡死"）。
+        self.event_callback = event_callback
+
+        # polygon 接口（/v3/place/polygon）合法的业务参数白名单。
+        # around/text 接口专有参数（city / citylimit / sortrule / location /
+        # radius 等）对 polygon 接口不合法，残留会导致行为不可预期
+        # （用户反馈：把行政区划编码填进城市框后整轮采集异常）。
+        self._allowed_extra = ("keywords", "types", "extensions")
 
         self._dedup = Deduplicator()
         self._records: list = []
         self._total_estimate = 0
         self._probe_count = 0  # 探测请求数（供日志）
 
+    def _emit(self, msg: str):
+        if self.event_callback:
+            try:
+                self.event_callback(msg)
+            except Exception:
+                pass  # 日志回调异常不影响采集
+
     # ---------------- 底层请求 ---------------- #
     def _request(self, bounds, page, offset):
-        """请求一个子网格的指定页，返回 (规范化 pois, count)。"""
-        p = dict(self.extra_params)
+        """请求一个子网格的指定页，返回 (规范化 pois, count)。
+
+        参数白名单：仅透传 polygon 接口支持的业务参数
+        （keywords / types / extensions），过滤 around/text 专有参数
+        （city / citylimit / sortrule 等），避免非法参数导致行为异常。
+        """
+        p = {k: v for k, v in self.extra_params.items()
+             if k in self._allowed_extra}
         p["polygon"] = bounds_to_polygon(bounds)
         p["page"] = page
         p["offset"] = offset
@@ -162,6 +185,11 @@ class SplitCollector:
         并提示用户（静默返回 0 会导致子网格被误判为"无数据"而漏采）。
         """
         self._probe_count += 1
+        # 大区域分片会产生数百次探测请求且期间进度条不动，
+        # 每 20 次上报一次，让用户确认采集仍在推进（非卡死）
+        if self._probe_count == 1 or self._probe_count % 20 == 0:
+            self._emit(f"[分片] 已探测 {self._probe_count} 个子网格，仍在划分中…"
+                       f"（数据量大时本阶段可能持续数分钟）")
         _, count = self._request(bounds, 1, 1)
         return count
 
@@ -189,11 +217,18 @@ class SplitCollector:
             return
         count = self._probe(bounds)
         if count < self.threshold or depth >= self.max_depth:
+            if depth >= self.max_depth and count >= self.threshold:
+                # 网格已到最大深度但仍超阈值：数据过密，仅能采到前 200 条
+                self._emit(f"[分片] 警告：某子网格数据过密（约 {count} 条 ≥ 阈值 "
+                           f"{self.threshold}）且已达最大切分深度，该子区域仅能采到"
+                           f"前 200 条，结果可能不完整。建议缩小范围或改用更细分的关键词")
             self._collect_area(bounds)
             return
         # 网格已到最小边长 → 直接采（即便超阈值也只取前 200）
         if (bounds[2] - bounds[0]) < _GRID_MIN_SIDE_DEG or \
                 (bounds[3] - bounds[1]) < _GRID_MIN_SIDE_DEG:
+            self._emit(f"[分片] 警告：子网格已达最小边长仍过密（约 {count} 条），"
+                       f"该子区域仅能采到前 200 条")
             self._collect_area(bounds)
             return
         for sub in _quad_split(bounds):

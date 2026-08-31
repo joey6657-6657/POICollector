@@ -124,11 +124,16 @@ class CollectWorker(QThread):
                         center=(float(parts[0]), float(parts[1])),
                         radius=int(self.params.get("radius", 5000)),
                         threshold=AUTO_SPLIT_THRESHOLD if split_mode == "auto" else split_threshold,
+                        # 分片子请求走 polygon 接口，剔除 around 专有参数
+                        # （city/citylimit/sortrule 对 polygon 接口不合法）；
+                        # types/keywords 等业务参数由 SplitCollector 白名单保留
                         extra_params={k: v for k, v in self.params.items()
-                                      if k not in ("location", "radius",
+                                      if k not in ("location", "radius", "city",
+                                                   "citylimit", "sortrule",
                                                    "split_mode", "split_threshold")},
                         progress_callback=self._on_progress,
                         cancelled=lambda: self._cancelled,
+                        event_callback=on_event,
                     )
                 elif self.mode == "polygon":  # polygon
                     lines = [l.strip() for l in self.params.get("polygon", "").split("|")
@@ -150,6 +155,7 @@ class CollectWorker(QThread):
                                                    "split_threshold")},
                         progress_callback=self._on_progress,
                         cancelled=lambda: self._cancelled,
+                        event_callback=on_event,
                     )
                 else:  # text：按城市行政区边界切格，突破关键词搜索 200 条上限
                     city = str(self.params.get("city", "")).strip()
@@ -173,16 +179,23 @@ class CollectWorker(QThread):
                             self.log_signal.emit(
                                 f"[分片] 关键词模式：已解析「{city}」边界"
                                 f"（{len(rings)} 环 / {len(verts)} 点），按城市范围切格采集")
+                            self.log_signal.emit(
+                                "[提示] 数据量大时切分与采集可能持续较久，"
+                                "日志会定期播报进度，请耐心等待")
                             collector = SplitCollector(
                                 self.client,
                                 mode="polygon",
                                 polygon=verts,
                                 filter_rings=rings,
                                 threshold=AUTO_SPLIT_THRESHOLD if split_mode == "auto" else split_threshold,
+                                # 城市范围已由边界多边形表达，子请求剔除
+                                # city/citylimit（polygon 接口不支持这两个参数）
                                 extra_params={k: v for k, v in self.params.items()
-                                              if k not in ("split_mode", "split_threshold")},
+                                              if k not in ("city", "citylimit",
+                                                           "split_mode", "split_threshold")},
                                 progress_callback=self._on_progress,
                                 cancelled=lambda: self._cancelled,
+                                event_callback=on_event,
                             )
             if use_split:
                 records, total, probe_cnt = collector.run()
