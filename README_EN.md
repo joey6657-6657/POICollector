@@ -46,10 +46,30 @@
 
 ## 📥 Download and installation
 
-- **Download v1.0.0:** open the [POICollector v1.0.0 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.0) and download `POICollector.exe` from Assets.
+- **Download v1.0.1:** open the [POICollector v1.0.1 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.1) and download `POICollector.exe` from Assets.
 - **No Python environment required:** the published EXE packages the interpreter and dependencies.
-- **SHA-256:** `0E46E721CFF52C3C2A8BA218D620516DD06D935FBBD533B3E36C405D572F1AC5`
+- **SHA-256:** `EF56E055E3033E3420E68B51086B0E31016DE72867B47D94ECCA8DB5583B3FB5`
 - **First-run notice:** the app is not code-signed, so Windows SmartScreen may show a warning. Download only from this repository’s Release and verify the SHA-256 checksum.
+
+<a id="faq"></a>
+
+## ❓ FAQ
+
+**Q: The progress bar has not moved for a long time — is it frozen?**
+
+When searching a large area with a whole POI category selected, the tool splits the region into hundreds of small grid cells and collects them one by one, so the total number of requests is large. Personal developer keys are limited to 3 requests/second, so the run may take several minutes to tens of minutes — this is normal. Since v1.0.1 the run log periodically reports "N grid cells probed"; as long as that counter grows, collection is still running. Using 2–3 keys (comma-separated) is recommended so the tool can rotate them to spread the rate limit.
+
+**Q: What does the warning "cell too dense, only the first 200 results can be collected" mean?**
+
+The POI count in that grid cell exceeds the per-request API limit and the maximum split depth has been reached, so it cannot be subdivided further — the result for that cell is **incomplete**. Try a smaller radius / area, or use a more specific keyword or a finer POI sub-category.
+
+**Q: Can I collect by administrative district? What goes in the city field?**
+
+The "city" field accepts a city name (e.g. `苏州`), a citycode, or an adcode (administrative-division code, e.g. `320500`). After filling it in, enabling "limit to city" is recommended for better accuracy.
+
+**Q: Windows SmartScreen blocked the first launch.**
+
+The app is not code-signed, so the warning on first launch is expected — click "More info → Run anyway". Always download only from this repository's Release and verify the SHA-256 checksum.
 
 <a id="scope"></a>
 

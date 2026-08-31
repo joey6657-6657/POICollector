@@ -5,4 +5,4 @@
   - data/   数据层：导出、去重、POI 类型表
   - gui/    PySide6 界面层
 """
-__version__ = "1.0.0"
+__version__ = "1.0.1"
