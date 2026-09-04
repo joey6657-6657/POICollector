@@ -97,9 +97,14 @@ class CollectWorker(QThread):
                     probe_params.setdefault("extensions", "base")
                     probe_data = self.client._call(endpoint, probe_params)
                     count = int(probe_data.get("count") or 0)
+                except AMapError as e:
+                    # Key 无效/配额耗尽/业务参数错误：继续跑注定失败，直接终止。
+                    # （旧版在此吞掉异常降级为普通模式，导致无效 Key 时
+                    #   全程空转最后静默显示"完成 0 条"，误导用户排查方向）
+                    raise
                 except Exception as e:
                     count = 0
-                    self.log_signal.emit(f"[分片] 自动探测失败，按普通模式采集：{e}")
+                    self.log_signal.emit(f"[分片] 自动探测失败（网络原因），按普通模式采集：{e}")
                 if count >= AUTO_SPLIT_THRESHOLD:
                     use_split = True
                     self.log_signal.emit(
@@ -260,6 +265,14 @@ class CollectWorker(QThread):
                 Exporter().export(records, path, fmt)
                 saved.append(path)
             self.log_signal.emit(f"[导出] 已保存 {len(saved)} 个文件：{', '.join(saved)}")
+            if total == 0 and not self._cancelled:
+                self.log_signal.emit(
+                    "[提示] 采集完成但结果为 0 条。常见原因："
+                    "① Key 无效或非「Web服务」类型（见上方日志有无 Key 相关警告）；"
+                    "② 坐标不在目标区域内（注意须为 GCJ-02 经纬度，纬度在前经度在后"
+                    "的顺序应为 经度,纬度）；"
+                    "③ POI 类型/关键词与该区域实际地物不匹配。"
+                    "可先用「周边搜索 + 餐饮」在小范围（如天安门 2000m）验证 Key 可用性")
             self.result_signal.emit(records)
             self.status_signal.emit(f"完成（{total} 条 / {len(saved)} 个文件）", "done")
 

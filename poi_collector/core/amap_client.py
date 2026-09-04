@@ -19,8 +19,12 @@ class AMapError(Exception):
 
 
 # 触发换 Key / 重试的关键字与错误码
-_QUOTA_KEYWORDS = ("DAILY", "QUOTA", "OVER", "LIMIT", "EXCEED", "INVALID_USER_IP", "INVALID_USER_KEY")
-_QUOTA_CODES = {"10001", "10003", "10009", "10010", "10021", "20003", "20011", "20012"}
+_QUOTA_KEYWORDS = ("DAILY", "QUOTA", "OVER", "LIMIT", "EXCEED", "INVALID_USER_IP")
+_QUOTA_CODES = {"10003", "10009", "10010", "10021", "20003", "20011", "20012"}
+# Key 无效/不存在/类型错误：与配额无关，单独提示（用户最常见的新手错误：
+# 用了 Web端JS/Android/iOS 类型的 Key，而非「Web服务」类型）
+_INVALID_KEY_CODES = {"10001"}
+_INVALID_KEY_KEYWORDS = ("INVALID_USER_KEY",)
 
 
 class AMapClient:
@@ -102,6 +106,22 @@ class AMapClient:
 
             info = data.get("info", "未知错误")
             errcode = str(data.get("infocode", ""))
+            # Key 无效（10001）：Key 不存在 / 类型错误（如误用 JS/Android Key），
+            # 该 Key 永久不可用 → 标记并尝试下一个；全部无效时给出明确指引
+            if errcode in _INVALID_KEY_CODES or any(
+                    k in info.upper() for k in _INVALID_KEY_KEYWORDS):
+                old_key = self.key_manager.current()[:8] + "…" if self.key_manager.current() else "?"
+                self.key_manager.mark_exhausted()
+                remaining = self.key_manager.available_count()
+                self._emit("warn", f"Key [{old_key}] 无效（{errcode}）：不存在或类型错误"
+                           f"（须为「Web服务」类型），剩余可用 Key: {remaining}")
+                if self.key_manager.next_key():
+                    time.sleep(0.3)
+                    continue
+                raise AMapError(
+                    "所有 Key 均无效（10001）。请到高德开放平台控制台检查："
+                    "① Key 是否存在且未删除；② 服务平台必须为「Web服务」"
+                    "（Web端JS / Android / iOS 类型的 Key 不能用于本软件）")
             if any(k in info.upper() for k in _QUOTA_KEYWORDS) or errcode in _QUOTA_CODES:
                 old_key = self.key_manager.current()[:8] + "…" if self.key_manager.current() else "?"
                 if errcode == "10021":
