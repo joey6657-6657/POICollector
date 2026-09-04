@@ -60,12 +60,40 @@ class AMapClient:
                 resp = self.session.get(
                     (base or self.BASE) + endpoint, params=params, timeout=self.timeout
                 )
-                data = resp.json()
-            except (requests.RequestException, ValueError) as e:
-                last_err = AMapError(f"网络或解析错误: {e}")
+            except requests.RequestException as e:
+                # 纯网络层错误（连接失败/超时/DNS）→ 指数退避重试
+                last_err = AMapError(f"网络错误: {e}")
                 delay = self.retry.backoff_seconds(attempt)
                 self._emit("warn", f"网络异常，第 {attempt+1}/{self.retry.max_retries} 次重试，"
                            f"等待 {delay:.1f}s … ({e})")
+                self.retry.sleep(attempt)
+                continue
+
+            # 收到了响应：先看 HTTP 状态码，非 200 时响应体大概率是网关/拦截的 HTML
+            if resp.status_code != 200:
+                snippet = (resp.text or "")[:120].replace("\n", " ").strip() or "(空响应)"
+                last_err = AMapError(f"服务返回 HTTP {resp.status_code}: {snippet}")
+                delay = self.retry.backoff_seconds(attempt)
+                self._emit("warn", f"服务返回 HTTP {resp.status_code}，"
+                           f"第 {attempt+1}/{self.retry.max_retries} 次重试，等待 {delay:.1f}s …"
+                           f"（响应片段: {snippet}）")
+                self.retry.sleep(attempt)
+                continue
+
+            try:
+                data = resp.json()
+            except ValueError as e:
+                # 响应体不是 JSON：多为代理/VPN/安全软件/校园网拦截，返回了 HTML 或空体。
+                # 把状态码和响应片段写进日志，让用户能自助判断真实原因。
+                snippet = (resp.text or "")[:120].replace("\n", " ").strip() or "(空响应)"
+                last_err = AMapError(
+                    f"响应不是有效 JSON（HTTP {resp.status_code}），可能被代理/VPN/安全软件拦截。"
+                    f"响应片段: {snippet}"
+                )
+                delay = self.retry.backoff_seconds(attempt)
+                self._emit("warn", f"响应解析失败，第 {attempt+1}/{self.retry.max_retries} 次重试，"
+                           f"等待 {delay:.1f}s …（HTTP {resp.status_code}，"
+                           f"响应片段: {snippet}）")
                 self.retry.sleep(attempt)
                 continue
 
