@@ -41,6 +41,8 @@ class AMapClient:
         # QPS 限流警告去重：同一 Key 只提示一次，避免刷屏导致用户不信任
         self._qps_warned_keys = set()
         self._qps_all_warned = False
+        # 最近一次成功请求的完整 URL（key 已脱敏），供异常场景诊断
+        self.last_request_url = None
 
     def _emit(self, level: str, msg: str):
         if self._event:
@@ -102,6 +104,14 @@ class AMapClient:
                 continue
 
             if data.get("status") == "1":
+                # 记录完整请求 URL（含 Key，仅在本机 GUI 日志展示），供 0 条等
+                # 异常场景诊断：用户复制到浏览器可直接查看高德的原始返回
+                try:
+                    url = getattr(resp, "url", None)
+                    if url:
+                        self.last_request_url = url
+                except Exception:
+                    pass
                 return data
 
             info = data.get("info", "未知错误")

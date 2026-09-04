@@ -114,6 +114,16 @@ class CollectWorker(QThread):
                     self.log_signal.emit(
                         f"[分片] 自动模式：探测到 {count} 条 < {AUTO_SPLIT_THRESHOLD}，"
                         f"无需分片，按普通模式采集")
+                    if count == 0:
+                        # 探测成功但 0 条：把实际请求 URL 打出来，
+                        # 用户可复制到浏览器直接查看高德原始返回，快速定位是
+                        # 参数问题（坐标/类型/关键词）还是环境问题（代理/拦截）
+                        url = getattr(self.client, "last_request_url", None)
+                        if url:
+                            self.log_signal.emit(
+                                "[诊断] 探测请求 URL（复制到浏览器打开可直接查看高德原始返回；"
+                                "⚠️ URL 含你的 Key，公开分享前请先删除 key= 参数）：")
+                            self.log_signal.emit(f"[诊断] {url}")
 
             if use_split:
                 collector = None
@@ -273,6 +283,12 @@ class CollectWorker(QThread):
                     "的顺序应为 经度,纬度）；"
                     "③ POI 类型/关键词与该区域实际地物不匹配。"
                     "可先用「周边搜索 + 餐饮」在小范围（如天安门 2000m）验证 Key 可用性")
+                url = getattr(self.client, "last_request_url", None)
+                if url:
+                    self.log_signal.emit(
+                        "[提示] 本次实际请求 URL（复制到浏览器打开可直接查看高德原始返回；"
+                        "⚠️ URL 含你的 Key，公开分享前请先删除 key= 参数）：")
+                    self.log_signal.emit(f"[提示] {url}")
             self.result_signal.emit(records)
             self.status_signal.emit(f"完成（{total} 条 / {len(saved)} 个文件）", "done")
 
