@@ -46,9 +46,9 @@
 
 ## 📥 下载与安装
 
-- **下载 v1.0.1**：前往 [POICollector v1.0.1 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.1)，在 Assets 中下载 `POICollector.exe`。
+- **下载 v1.0.2**：前往 [POICollector v1.0.2 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.2)，在 Assets 中下载 `POICollector.exe`。
 - **无需 Python 环境**：发布的 EXE 内置解释器与依赖，双击即可使用。
-- **SHA-256**：`EF56E055E3033E3420E68B51086B0E31016DE72867B47D94ECCA8DB5583B3FB5`
+- **SHA-256**：见 Release 页说明（每次打包后更新）。
 - **首次运行提示**：软件没有代码签名，Windows SmartScreen 可能提示拦截；请只从本仓库 Release 下载并核对 SHA-256。
 
 <a id="faq"></a>
@@ -62,6 +62,10 @@
 **Q：日志出现「数据过密，仅能采到前 200 条」警告是什么意思？**
 
 该子网格的 POI 数量超过单次接口上限，且已达到最大切分深度、无法继续细分——这部分结果**不完整**。建议缩小搜索半径 / 范围，或改用更具体的关键词、更细的 POI 子类型后重试。
+
+**Q：日志提示「Key 无效（10001）」或采集结果为 0 条？**
+
+「Key 无效（10001）」表示 Key 不存在或类型错误：请到[高德控制台](https://console.amap.com/dev/key/app)核对 Key 是否存在，且「服务平台」必须为 **Web服务**（Web端JS / Android / iOS 类型的 Key 不能用于本软件）。v1.0.2 起，无效 Key 会在日志中明确报错并立即终止，不再静默返回 0 条；若采集完成但结果为 0 条，日志会输出常见原因提示（Key 类型 / 坐标顺序为「经度,纬度」且为 GCJ-02 / 类型关键词匹配）。若日志出现「响应不是有效 JSON」，通常是代理、VPN 或安全软件拦截了请求，可按日志中的响应片段判断。
 
 **Q：采集可以指定行政区划吗？城市框里填什么？**
 

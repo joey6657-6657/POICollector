@@ -46,9 +46,9 @@
 
 ## 📥 Download and installation
 
-- **Download v1.0.1:** open the [POICollector v1.0.1 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.1) and download `POICollector.exe` from Assets.
+- **Download v1.0.2:** open the [POICollector v1.0.2 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.2) and download `POICollector.exe` from Assets.
 - **No Python environment required:** the published EXE packages the interpreter and dependencies.
-- **SHA-256:** `EF56E055E3033E3420E68B51086B0E31016DE72867B47D94ECCA8DB5583B3FB5`
+- **SHA-256:** see the Release page notes (updated for each build).
 - **First-run notice:** the app is not code-signed, so Windows SmartScreen may show a warning. Download only from this repository’s Release and verify the SHA-256 checksum.
 
 <a id="faq"></a>
@@ -62,6 +62,10 @@ When searching a large area with a whole POI category selected, the tool splits 
 **Q: What does the warning "cell too dense, only the first 200 results can be collected" mean?**
 
 The POI count in that grid cell exceeds the per-request API limit and the maximum split depth has been reached, so it cannot be subdivided further — the result for that cell is **incomplete**. Try a smaller radius / area, or use a more specific keyword or a finer POI sub-category.
+
+**Q: The log shows "Key invalid (10001)" or the collection returns 0 results?**
+
+"Key invalid (10001)" means the key does not exist or has the wrong type: check the [Amap console](https://console.amap.com/dev/key/app) to confirm the key exists and its platform is **Web service** (Web-side JS / Android / iOS keys do not work with this tool). Since v1.0.2, an invalid key is reported explicitly in the log and collection stops immediately instead of silently returning 0 results; when a run completes with 0 results, the log prints common causes (key type / coordinates must be "lng,lat" in GCJ-02 / category-keyword match). If the log shows "response is not valid JSON", a proxy, VPN, or security software is likely intercepting requests — check the response snippet in the log.
 
 **Q: Can I collect by administrative district? What goes in the city field?**
 
