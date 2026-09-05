@@ -59,8 +59,8 @@ class AMapClient:
         for attempt in range(self.retry.max_retries):
             if not self.key_manager:
                 raise AMapError("未配置任何 API Key")
-            # 轮询：每个请求切换到下一个未耗尽 Key（多 Key 分摊 QPS 限流）
-            self.key_manager.next_key()
+            # 轮询：首次请求用第一把 Key，此后逐请求切换（多 Key 分摊 QPS 限流）
+            self.key_manager.acquire()
             params["key"] = self.key_manager.current()
             try:
                 resp = self.session.get(

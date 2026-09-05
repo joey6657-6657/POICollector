@@ -328,6 +328,10 @@ class CollectWorker(QThread):
                     "的顺序应为 经度,纬度）；"
                     "③ POI 类型/关键词与该区域实际地物不匹配。"
                     "可先用「周边搜索 + 餐饮」在小范围（如天安门 2000m）验证 Key 可用性")
+                if self.mode == "detail":
+                    self.log_signal.emit(
+                        "[提示] ID 查询返回空也可能与权限有关：高德对部分账号的"
+                        "「POI 详情查询」要求提交工单开通后才返回结果，可到高德控制台核实")
                 url = getattr(self.client, "last_request_url", None)
                 if url:
                     self.log_signal.emit(

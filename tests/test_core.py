@@ -84,6 +84,17 @@ def test_key_manager_skips_exhausted_keys():
     assert manager.available_count() == 0
 
 
+def test_key_manager_acquire_starts_from_first_key():
+    manager = KeyManager(["first", "second"])
+    assert manager.acquire() == "first"
+    assert manager.acquire() == "second"
+    assert manager.acquire() == "first"
+    # 单 Key 场景：轮询始终返回同一把
+    solo = KeyManager(["only"])
+    assert solo.acquire() == "only"
+    assert solo.acquire() == "only"
+
+
 def test_checkpoint_round_trip_and_clear(tmp_path):
     path = tmp_path / "checkpoint.json"
     checkpoint = Checkpoint(str(path))

@@ -11,6 +11,7 @@ class KeyManager:
     def __init__(self, keys):
         self.keys = [k.strip() for k in (keys or []) if k and k.strip()]
         self.index = 0
+        self.started = False  # acquire() 首次直接用第一把 Key，此后才轮询
         self.exhausted = set()  # 记录耗尽 Key 的索引
 
     def __len__(self):
@@ -23,6 +24,13 @@ class KeyManager:
         if not self.keys:
             return None
         return self.keys[self.index]
+
+    def acquire(self):
+        """取本次请求应使用的 Key：首次返回第一把，此后逐请求轮询分摊 QPS。"""
+        if not self.started:
+            self.started = True
+            return self.current()
+        return self.next_key()
 
     def next_key(self):
         """切换到下一个未耗尽的 Key，返回该 Key；无可用则返回 None。"""
@@ -48,3 +56,4 @@ class KeyManager:
     def reset(self):
         self.exhausted.clear()
         self.index = 0
+        self.started = False
