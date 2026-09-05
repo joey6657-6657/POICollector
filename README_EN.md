@@ -46,7 +46,7 @@
 
 ## 📥 Download and installation
 
-- **Download v1.0.2:** open the [POICollector v1.0.2 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.2) and download `POICollector.exe` from Assets.
+- **Download v1.0.1 (September 2026 rebuild):** open the [POICollector v1.0.1 Release](https://github.com/joey6657-6657/POICollector/releases/tag/v1.0.1) and download `POICollector.exe` from Assets. This is a rebuilt release that fixes the built-in POI category code table, large-polygon collection, and error diagnostics. If you downloaded the earlier v1.0.1 build, please re-download.
 - **No Python environment required:** the published EXE packages the interpreter and dependencies.
 - **SHA-256:** see the Release page notes (updated for each build).
 - **First-run notice:** the app is not code-signed, so Windows SmartScreen may show a warning. Download only from this repository’s Release and verify the SHA-256 checksum.
@@ -65,7 +65,15 @@ The POI count in that grid cell exceeds the per-request API limit and the maximu
 
 **Q: The log shows "Key invalid (10001)" or the collection returns 0 results?**
 
-"Key invalid (10001)" means the key does not exist or has the wrong type: check the [Amap console](https://console.amap.com/dev/key/app) to confirm the key exists and its platform is **Web service** (Web-side JS / Android / iOS keys do not work with this tool). Since v1.0.2, an invalid key is reported explicitly in the log and collection stops immediately instead of silently returning 0 results; when a run completes with 0 results, the log prints common causes (key type / coordinates must be "lng,lat" in GCJ-02 / category-keyword match). If the log shows "response is not valid JSON", a proxy, VPN, or security software is likely intercepting requests — check the response snippet in the log.
+"Key invalid (10001)" means the key does not exist or has the wrong type: check the [Amap console](https://console.amap.com/dev/key/app) to confirm the key exists and its platform is **Web service** (Web-side JS / Android / iOS keys do not work with this tool). An invalid key is reported explicitly in the log and collection stops immediately instead of silently returning 0 results; when a run completes with 0 results, the log prints common causes (key type / coordinates must be "lng,lat" in GCJ-02 / category-keyword match). If the log shows "response is not valid JSON", a proxy, VPN, or security software is likely intercepting requests — check the response snippet in the log.
+
+**Q: Results are 0 whenever I select a POI category?**
+
+Builds before September 2026 shipped a defective POI category table: leading zeros were stripped from category codes (e.g. `050000` stored as `50000`), so category-based queries matched nothing on AMap. Update to the September 2026 rebuild and re-select the categories.
+
+**Q: Polygon search fails with "response is not valid JSON" or returns nothing?**
+
+With hundreds of vertices the GET request URL exceeds the server's length limit and the request is rejected with an empty body (observed as HTTP 413). The new build automatically queries the bounding box instead and filters results by the original polygon locally, and auto-closes the ring; simplifying the polygon is still recommended.
 
 **Q: Can I collect by administrative district? What goes in the city field?**
 
