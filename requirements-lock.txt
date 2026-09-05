@@ -1,4 +1,4 @@
-# POICollector v1.0.0 - Python 3.13.14 / Windows x64 verified environment
+# POICollector v1.0.1 - Python 3.13.14 / Windows x64 verified environment
 # Regenerate after an intentional dependency update:
 #   venv\Scripts\python.exe -m pip freeze > requirements-lock.txt
 altgraph==0.17.5

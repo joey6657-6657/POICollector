@@ -8,7 +8,7 @@ never creates a Git commit, and writes only into the ignored release/ directory.
 #>
 [CmdletBinding()]
 param(
-    [string]$Version = "1.0.0",
+    [string]$Version = "1.0.1",
     [string]$ExecutablePath = "dist\\POICollector.exe"
 )
 

@@ -227,7 +227,7 @@ POICollector/
 ├── README_EN.md                # English README
 ├── requirements.txt            # 运行时 Python 依赖
 ├── requirements-dev.txt        # 开发/测试依赖
-├── requirements-lock.txt       # v1.0.0 已验证的完整环境
+├── requirements-lock.txt       # v1.0.1 已验证的完整环境
 ├── LICENSE / LICENSES/         # 本项目与第三方许可证材料
 ├── .github/                    # CI、Issue 模板与社区规范
 ├── docs/                       # 更新日志与 Release 文档
