@@ -149,6 +149,29 @@ def test_grid_geometry_helpers():
     assert not point_in_polygon(1.5, 0.5, square)
 
 
+def test_poi_types_table_codes_are_six_digits():
+    """回归：编码表不得缺失前导零（Excel 转换曾把 050000 削成 50000，勾类型必 0 条）。"""
+    import json
+    import os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "..", "poi_collector", "data", "poi_types.json")
+    with open(path, encoding="utf-8") as f:
+        types = json.load(f)
+    assert len(types) == 915
+    for t in types:
+        assert len(t["code"]) == 6 and t["code"].isdigit(), t
+    by_name = {t["name"]: t["code"] for t in types}
+    assert by_name["汽车服务"] == "010000"
+    assert by_name["汽车维修"] == "030000"
+    assert by_name["餐饮服务"] == "050000"
+    # 子类编码前两位必须与所属大类一致
+    top = {name: code for name, code in by_name.items() if ">" not in name}
+    for name, code in by_name.items():
+        if ">" in name:
+            parent = top.get(name.split(" > ")[0])
+            assert parent is not None and code[:2] == parent[:2], name
+
+
 def test_exporter_writes_csv_json_geojson_excel_and_shapefile(tmp_path, record):
     exporter = Exporter()
     records = [record]
