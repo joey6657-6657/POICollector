@@ -172,6 +172,32 @@ def test_poi_types_table_codes_are_six_digits():
             assert parent is not None and code[:2] == parent[:2], name
 
 
+def test_polygon_ring_closure_and_bbox_query_helpers():
+    """大多边形降级路径：自动闭合、包围盒参数、内存边界过滤。"""
+    from poi_collector.core.splitter import (
+        MAX_DIRECT_POLYGON_VERTS,
+        bbox_polygon_param,
+        close_ring,
+        filter_records_in_polygon,
+        verts_to_polygon_param,
+    )
+    verts = [(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0)]
+    closed = close_ring(verts)
+    assert len(closed) == 5 and closed[-1] == closed[0]
+    assert close_ring(closed) == closed  # 已闭合则不再追加
+    assert verts_to_polygon_param(closed).count("|") == 4
+    rect = bbox_polygon_param(verts)
+    assert rect.startswith("0.000000,2.000000")
+    assert rect.endswith("0.000000,2.000000")
+    assert MAX_DIRECT_POLYGON_VERTS == 100
+    records = [
+        {"id": "in", "lng": 1.0, "lat": 1.0},
+        {"id": "out", "lng": 3.0, "lat": 1.0},
+        {"id": "nocoord", "lng": None, "lat": None},
+    ]
+    assert [r["id"] for r in filter_records_in_polygon(records, [verts])] == ["in"]
+
+
 def test_exporter_writes_csv_json_geojson_excel_and_shapefile(tmp_path, record):
     exporter = Exporter()
     records = [record]

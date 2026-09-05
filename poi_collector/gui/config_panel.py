@@ -249,6 +249,7 @@ class ConfigPanel(QWidget):
         self.sort_combo.addItem("按综合权重排序（默认）", "weight")
         v.addWidget(self.sort_combo)
         v.addWidget(self._hint("按距离排序仅传 types 时生效；只传 keywords 不传 types 时不生效"))
+        v.addWidget(self._hint("关键词与 POI 类型都为空时，高德默认查询：餐饮服务 / 生活服务 / 商务住宅"))
         v.addStretch()
         self.tab.addTab(w, "周边搜索")
 
@@ -302,7 +303,8 @@ class ConfigPanel(QWidget):
         self.polygon_kw.setPlaceholderText("如：餐饮、肯德基")
         v.addWidget(self.polygon_kw)
 
-        v.addWidget(self._hint("坐标对以 | 连接；支持导入 GeoJSON 文件自动提取多边形坐标"))
+        v.addWidget(self._hint("坐标对以 | 连接；软件会自动闭合首尾顶点（高德要求非矩形多边形首尾坐标对相同）；"
+                                "顶点过多时会自动改用包围盒查询并在本地按边界过滤；支持导入 GeoJSON 文件自动提取多边形坐标"))
         v.addStretch()
         self.tab.addTab(w, "多边形搜索")
 

@@ -7,6 +7,9 @@ v1.2：支持"突破 200 条上限"的网格分片采集（SplitCollector）。
 v1.3：停止采集时保留检查点与部分导出，下次同参数启动自动续采并合并已有数据。
 v1.4：关键词搜索（text）接入网格分片——解析城市行政区边界后切格采集；
       ID 查询（detail）为单点查询无条数限制，无需分片。
+v1.5：大多边形（顶点 > 100）改用包围盒矩形查询 + 本地按原多边形边界过滤，
+      规避 GET 请求 URL 超长被服务端拒绝（HTTP 413 空响应）；并按高德要求
+      自动闭合多边形首尾顶点。
 """
 import csv
 import hashlib
@@ -17,7 +20,9 @@ from PySide6.QtCore import QThread, Signal
 
 from ..core.amap_client import AMapError
 from ..core.checkpoint import Checkpoint
-from ..core.splitter import SplitCollector
+from ..core.splitter import (MAX_DIRECT_POLYGON_VERTS, SplitCollector,
+                             bbox_polygon_param, close_ring,
+                             filter_records_in_polygon, verts_to_polygon_param)
 from ..data.exporter import Exporter
 
 
@@ -80,6 +85,29 @@ class CollectWorker(QThread):
                 return {k: v for k, v in self.params.items()
                         if k not in ("split_mode", "split_threshold")}
 
+            # ---- 多边形模式预处理：解析顶点并自动闭合（高德要求首尾坐标对相同）----
+            poly_verts = None
+            if self.mode == "polygon":
+                raw_lines = [l.strip() for l in str(self.params.get("polygon", "")).split("|")
+                             if l.strip()]
+                if len(raw_lines) < 3:
+                    raise AMapError("多边形至少需 3 个顶点")
+                poly_verts = []
+                for line in raw_lines:
+                    xy = line.split(",")
+                    if len(xy) == 2:
+                        try:
+                            poly_verts.append((float(xy[0]), float(xy[1])))
+                        except ValueError:
+                            continue
+                if len(poly_verts) < 3:
+                    raise AMapError("多边形顶点解析失败（每行应为 经度,纬度）")
+                closed = close_ring(poly_verts)
+                if len(closed) != len(poly_verts):
+                    self.log_signal.emit(
+                        "[提示] 已自动闭合多边形（高德要求非矩形多边形首尾坐标对相同）")
+                poly_verts = closed
+
             # 决定最终是否分片
             use_split = False
             if split_mode == "manual" and split_can_run:
@@ -95,6 +123,16 @@ class CollectWorker(QThread):
                     probe_params["page"] = 1
                     probe_params["offset"] = 1
                     probe_params.setdefault("extensions", "base")
+                    if self.mode == "polygon":
+                        # 顶点过多时 URL 超长（实测 370 顶点 HTTP 413 空响应），
+                        # 探测改用包围盒矩形（SplitCollector 亦按矩形探测）
+                        if len(poly_verts) > MAX_DIRECT_POLYGON_VERTS:
+                            probe_params["polygon"] = bbox_polygon_param(poly_verts)
+                            self.log_signal.emit(
+                                f"[分片] 多边形顶点较多（{len(poly_verts)} 个），"
+                                f"探测改用包围盒矩形，避免请求 URL 超长")
+                        else:
+                            probe_params["polygon"] = verts_to_polygon_param(poly_verts)
                     probe_data = self.client._call(endpoint, probe_params)
                     count = int(probe_data.get("count") or 0)
                 except AMapError as e:
@@ -150,20 +188,11 @@ class CollectWorker(QThread):
                         cancelled=lambda: self._cancelled,
                         event_callback=on_event,
                     )
-                elif self.mode == "polygon":  # polygon
-                    lines = [l.strip() for l in self.params.get("polygon", "").split("|")
-                             if l.strip()]
-                    if len(lines) < 3:
-                        raise AMapError("多边形至少需 3 个顶点")
-                    verts = []
-                    for line in lines:
-                        xy = line.split(",")
-                        if len(xy) == 2:
-                            verts.append((float(xy[0]), float(xy[1])))
+                elif self.mode == "polygon":  # polygon（顶点已在上方解析并闭合）
                     collector = SplitCollector(
                         self.client,
                         mode="polygon",
-                        polygon=verts,
+                        polygon=poly_verts,
                         threshold=AUTO_SPLIT_THRESHOLD if split_mode == "auto" else split_threshold,
                         extra_params={k: v for k, v in self.params.items()
                                       if k not in ("polygon", "split_mode",
@@ -219,6 +248,16 @@ class CollectWorker(QThread):
             else:
                 # ---- 原有单次查询（自动翻页，同参数最多 200 条；支持断点续传）----
                 request_params = _clean_params()
+                bbox_query = False
+                if self.mode == "polygon":
+                    if len(poly_verts) > MAX_DIRECT_POLYGON_VERTS:
+                        request_params["polygon"] = bbox_polygon_param(poly_verts)
+                        bbox_query = True
+                        self.log_signal.emit(
+                            f"[采集] 多边形顶点较多（{len(poly_verts)} 个），"
+                            f"按包围盒矩形查询，完成后在本地按原多边形边界过滤")
+                    else:
+                        request_params["polygon"] = verts_to_polygon_param(poly_verts)
                 resume_page = 1
                 prior = []
                 if ckpt:
@@ -244,6 +283,12 @@ class CollectWorker(QThread):
                     # 与回读的历史数据合并；跨段 ID 去重已由检查点完成
                     records = prior + records
                     total = len(records)
+                if bbox_query:
+                    before = len(records)
+                    records = filter_records_in_polygon(records, [poly_verts])
+                    total = len(records)
+                    self.log_signal.emit(
+                        f"[采集] 按原多边形边界过滤：{before} → {len(records)} 条")
                 self.log_signal.emit(f"[采集] 接口返回去重后 {total} 条")
 
             # 多格式导出：以 out 为基名，按各格式补全扩展名

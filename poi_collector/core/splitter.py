@@ -88,6 +88,56 @@ def point_in_polygon(lng, lat, poly):
     return inside
 
 
+# ---------------------------------------------------------------------- #
+# 大多边形降级：包围盒查询 + 本地边界过滤
+# ---------------------------------------------------------------------- #
+# 直接携带用户多边形发起请求的顶点数上限。高德 v3 搜索只有 GET，
+# 请求行超约 8KB 会被服务端拒绝并返回空响应体（客户端表现为
+# "响应不是有效 JSON"）。实测 370 顶点 ≈ 8.7KB；100 顶点 ≈ 2.5KB，留足余量。
+MAX_DIRECT_POLYGON_VERTS = 100
+
+
+def close_ring(verts):
+    """返回闭合环副本：首尾顶点不同时追加首顶点。
+
+    高德官方文档：非矩形多边形"首尾坐标对需相同"。GeoJSON 导入的环天然
+    闭合，手动粘贴的顶点通常不闭合，须自动补齐。
+    """
+    if len(verts) >= 3 and verts[0] != verts[-1]:
+        return list(verts) + [verts[0]]
+    return list(verts)
+
+
+def verts_to_polygon_param(verts):
+    """顶点列表 → polygon 参数串（坐标对用 | 分隔）。"""
+    return "|".join(f"{lng},{lat}" for lng, lat in verts)
+
+
+def bbox_polygon_param(verts):
+    """顶点列表 → 其包围盒矩形的 polygon 参数（5 点闭合）。
+
+    顶点过多时用包围盒代替原多边形发请求，避免 URL 超长；
+    结果由调用方用 filter_records_in_polygon 在本地按原多边形过滤。
+    """
+    return bounds_to_polygon(polygon_bounds(verts))
+
+
+def filter_records_in_polygon(records, rings):
+    """按多边形环组过滤规范化记录（内存过滤，规避超长 URL）。
+
+    与 SplitCollector.run() 的多边形过滤同规则：落在任一环内即保留。
+    """
+    kept = []
+    for r in records:
+        lng = r.get("lng")
+        lat = r.get("lat")
+        if lng is None or lat is None:
+            continue
+        if any(point_in_polygon(lng, lat, ring) for ring in rings):
+            kept.append(r)
+    return kept
+
+
 def _quad_split(bounds):
     """把包围盒均分为 4 个子盒。"""
     min_lng, min_lat, max_lng, max_lat = bounds
@@ -269,12 +319,7 @@ class SplitCollector:
         elif self.mode == "polygon" and self.polygon:
             # 多环边界（如城市行政区）：落在任一环内即保留
             rings = self.filter_rings if self.filter_rings else [self.polygon]
-            for r in self._records:
-                rlng, rlat = r.get("lng"), r.get("lat")
-                if rlng is None or rlat is None:
-                    continue
-                if any(point_in_polygon(rlng, rlat, ring) for ring in rings):
-                    kept.append(r)
+            kept = filter_records_in_polygon(self._records, rings)
         else:
             kept = self._records
 
